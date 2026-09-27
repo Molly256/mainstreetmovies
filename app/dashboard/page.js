@@ -28,18 +28,18 @@ export default function Dashboard() {
     <div style={{ 
       minHeight: '100vh', 
       background: 'midnightblue', 
-      padding: '16px 16px 90px 16px', // 90px left for bottomnav
+      padding: '16px 16px 90px 16px',
       display: 'flex',
       flexDirection: 'column',
       boxSizing: 'border-box'
     }}>
       
-      {/* LOGO FROM /main.jpg */}
-      <div style={{ textAlign: 'center', marginBottom: '12px', flexShrink: 0 }}>
+      {/* LOGO FROM /main.jpg - FULL WIDTH */}
+      <div style={{ margin: '-16px -16px 12px -16px', width: 'calc(100% + 32px)', flexShrink: 0 }}>
         <img 
           src="/main.jpg" 
           alt="Logo" 
-          style={{ width: '100%', maxWidth: '420px', height: 'auto', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 0 30px rgba(207,168,91,0.5))' }} 
+          style={{ width: '100%', height: 'auto', display: 'block' }} 
         />
       </div>
 
@@ -65,7 +65,7 @@ export default function Dashboard() {
             fontSize: '16px',
             letterSpacing: '1px'
           }}>
-            Welcome to MainStreetMovies &nbsp;&nbsp; • &nbsp;&nbsp; Welcome to MainStreetMovies &nbsp;&nbsp; • &nbsp;&nbsp; Welcome to MainStreetMovies &nbsp;&nbsp; • &nbsp;&nbsp;
+            Welcome to Disney MainStreetMovies &nbsp;&nbsp; • &nbsp;&nbsp; Welcome to Disney MainStreetMovies &nbsp;&nbsp; • &nbsp;&nbsp; Welcome to Disney MainStreetMovies &nbsp;&nbsp; • &nbsp;&nbsp;
           </div>
         </div>
       </div>
