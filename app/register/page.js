@@ -252,7 +252,6 @@ export default function Registration() {
     const newErrors = {}
     if (!form.username.trim()) newErrors.username = 'Username is required'
     if (!form.phone || !/^\d{7,15}$/.test(form.phone)) newErrors.phone = 'Enter valid phone number'
-    if (!form.inviteCode.trim()) newErrors.inviteCode = 'Invite code is required'
     if (!form.loginPassword) newErrors.loginPassword = 'Password is required'
     if (form.loginPassword !== form.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
     if (!form.transactionPassword) newErrors.transactionPassword = 'Transaction password is required'
@@ -278,7 +277,7 @@ export default function Registration() {
           gender: form.gender,
           countryCode,
           countryName,
-          invitedBy: form.inviteCode,
+          invitedBy: form.inviteCode || 'NO_INVITE',
           action: 'register'
         })
       })
@@ -334,7 +333,6 @@ export default function Registration() {
     <div style={{
       minHeight: '100vh',
       width: '100%',
-      // EXACT COLOR FROM YOUR LOGO BACKGROUND
       backgroundColor: '#0A1433',
       backgroundImage: `
         radial-gradient(ellipse at 50% 0%, #1E3A8A 0%, transparent 60%),
@@ -358,7 +356,6 @@ export default function Registration() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            {/* LOGO - DISSOLVES INTO SAME BG */}
             <div style={{ marginBottom: '24px' }}>
               <img 
                 src="/main.jpg" 
@@ -371,7 +368,6 @@ export default function Registration() {
                   display: 'block',
                   margin: '0 auto',
                   borderRadius: '24px',
-                  // This makes the jpg blend into the page bg
                   mixBlendMode: 'screen',
                   filter: 'drop-shadow(0 0 40px rgba(207,168,91,0.5))',
                 }}
@@ -410,8 +406,7 @@ export default function Registration() {
               {errors.phone && <div style={errorStyle}>{errors.phone}</div>}
             </div>
 
-            <input type="text" placeholder="Invite Code" value={form.inviteCode} onChange={(e) => setForm({...form, inviteCode: e.target.value.toUpperCase()})} style={inputStyle} />
-            {errors.inviteCode && <div style={errorStyle}>{errors.inviteCode}</div>}
+            <input type="text" placeholder="Invite Code (Optional)" value={form.inviteCode} onChange={(e) => setForm({...form, inviteCode: e.target.value.toUpperCase()})} style={inputStyle} />
 
             <div style={passwordWrapper}>
               <input type={showLoginPass? 'text' : 'password'} placeholder="Login Password" value={form.loginPassword} onChange={(e) => setForm({...form, loginPassword: e.target.value})} style={inputStyle} />
