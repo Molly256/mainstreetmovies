@@ -220,21 +220,29 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!form.password) {
+    if (!form.password.trim()) {
       setError('Password is required')
       return
     }
+    if (loginType === 'username' && !form.username.trim()) {
+      setError('Username is required')
+      return
+    }
+    if (loginType === 'phone' && !form.phone.trim()) {
+      setError('Phone is required')
+      return
+    }
     const selectedCountry = countries.find(c => c.name === form.selectedCountryName)
-    const countryCode = selectedCountry?.code || '+1'
-    const fullPhone = countryCode + form.phone
+    const countryCode = (selectedCountry?.code || '+1').replace(/\s+/g, '')
+    const fullPhone = countryCode + form.phone.replace(/\s+/g, '').trim()
     const res = await fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'login',
         loginType,
-        username: loginType === 'username' ? form.username : undefined,
-        password: form.password,
+        username: loginType === 'username' ? form.username.trim() : undefined,
+        password: form.password.trim(),
         phone: loginType === 'phone' ? fullPhone : undefined,
         countryCode
       })

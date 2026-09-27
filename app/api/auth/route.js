@@ -3,26 +3,47 @@ import { Redis } from '@upstash/redis'
 
 const redis = Redis.fromEnv()
 
+function getUgandaTime() {
+  const now = new Date()
+  const formatted = now.toLocaleString('en-GB', {
+    timeZone: 'Africa/Kampala',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
+  const [datePart, timePart] = formatted.split(', ')
+  const [day, month, year] = datePart.split('/')
+  return `${year}-${month}-${day}-${timePart}`
+}
+
+function normalizePhone(phone) {
+  return phone.replace(/\s+/g, '').trim()
+}
+
 export async function POST(req) {
   try {
     const body = await req.json()
     const { action } = body
 
-    // REGISTER
     if (action === 'register') {
-      const { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy } = body
+      let { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy } = body
+      username = username.trim()
+      phone = normalizePhone(phone)
+      loginPassword = loginPassword.trim()
 
       if (!username || !phone || !loginPassword) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
       }
 
-      // Check if username exists
       const existingUser = await redis.hget(`user:${username}`, 'username')
       if (existingUser) {
         return NextResponse.json({ error: 'Username already exists' }, { status: 400 })
       }
 
-      // Check phone exists
       const phoneExists = await redis.get(`phone:${phone}`)
       if (phoneExists) {
         return NextResponse.json({ error: 'Phone already registered' }, { status: 400 })
@@ -31,56 +52,40 @@ export async function POST(req) {
       const userData = {
         username,
         phone,
-        password: loginPassword, // In production hash this!
+        password: loginPassword,
         transactionPassword: transactionPassword || '',
         gender: gender || '',
         countryCode: countryCode || '',
         countryName: countryName || '',
         invitedBy: invitedBy || 'NO_INVITE',
-        createdAt: new Date().toISOString(),
+        createdAt: getUgandaTime(),
         balance: '0'
       }
 
-      // Save user hash
       await redis.hset(`user:${username}`, userData)
-      // Map phone -> username for login by phone
       await redis.set(`phone:${phone}`, username)
-      // Add to users list
       await redis.sadd('users:list', username)
-
-      console.log('User registered:', username)
 
       const res = NextResponse.json({ success: true, user: { username, phone } }, { status: 200 })
       res.cookies.set('user', JSON.stringify({ username, phone }), { path: '/', maxAge: 60*60*24*7 })
       return res
     }
 
-    // LOGIN
     if (action === 'login') {
-      const { loginType, username, phone, password, countryCode } = body
+      let { loginType, username, phone, password } = body
+      password = password?.trim()
 
       if (!password) {
         return NextResponse.json({ error: 'Password required' }, { status: 400 })
       }
 
-      let targetUsername = username
+      let targetUsername = username?.trim()
 
-      // If login by phone, find username from phone
       if (loginType === 'phone') {
-        const fullPhone = phone // already includes country code from frontend
-        targetUsername = await redis.get(`phone:${fullPhone}`)
+        phone = normalizePhone(phone)
+        targetUsername = await redis.get(`phone:${phone}`)
         if (!targetUsername) {
-          // Try with just phone search
-          const keys = await redis.keys('phone:*')
-          for (const key of keys) {
-            if (fullPhone.includes(key.replace('phone:', '')) || key.includes(fullPhone)) {
-              targetUsername = await redis.get(key)
-              break
-            }
-          }
-        }
-        if (!targetUsername) {
-          return NextResponse.json({ error: 'Phone not found' }, { status: 401 })
+          return NextResponse.json({ error: 'Phone not found. Please register first.' }, { status: 401 })
         }
       }
 
@@ -89,7 +94,8 @@ export async function POST(req) {
         return NextResponse.json({ error: 'User not found' }, { status: 401 })
       }
 
-      if (user.password !== password) {
+      // Trim both sides when comparing
+      if ((user.password || '').trim() !== password) {
         return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
       }
 
@@ -105,7 +111,6 @@ export async function POST(req) {
   }
 }
 
-// Optional: GET to list users for testing
 export async function GET() {
   try {
     const redis = Redis.fromEnv()
