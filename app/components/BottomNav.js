@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const navItems = [
-  { href: '/', label: 'Home', emoji: '🏠' },
+  { href: '/dashboard', label: 'Home', emoji: '🏠' },
   { href: '/task', label: 'Task', emoji: '💼' },
   { href: '/shares', label: 'Shares', emoji: '📈' },
   { href: '/my', label: 'My', emoji: '👤' },
@@ -12,6 +12,11 @@ const navItems = [
 
 export default function BottomNav() {
   const pathname = usePathname()
+
+  const hideOn = ['/login', '/register', '/', '/forgot-password']
+  if (hideOn.includes(pathname)) {
+    return null
+  }
 
   return (
     <div style={{
@@ -29,7 +34,7 @@ export default function BottomNav() {
       paddingBottom: '8px'
     }}>
       {navItems.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname.startsWith(item.href)
         return (
           <Link
             key={item.href}
