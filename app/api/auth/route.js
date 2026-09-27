@@ -21,7 +21,11 @@ function getUgandaTime() {
 }
 
 function normalizePhone(phone) {
-  return phone.replace(/\s+/g, '').trim()
+  return String(phone || '').replace(/\s+/g, '').trim()
+}
+
+function safeTrim(val) {
+  return String(val || '').trim()
 }
 
 export async function POST(req) {
@@ -31,9 +35,9 @@ export async function POST(req) {
 
     if (action === 'register') {
       let { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy } = body
-      username = username.trim()
+      username = safeTrim(username)
       phone = normalizePhone(phone)
-      loginPassword = loginPassword.trim()
+      loginPassword = safeTrim(loginPassword)
 
       if (!username || !phone || !loginPassword) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -52,12 +56,12 @@ export async function POST(req) {
       const userData = {
         username,
         phone,
-        password: loginPassword,
-        transactionPassword: transactionPassword || '',
-        gender: gender || '',
-        countryCode: countryCode || '',
-        countryName: countryName || '',
-        invitedBy: invitedBy || 'NO_INVITE',
+        password: loginPassword, // always stored as string now
+        transactionPassword: safeTrim(transactionPassword),
+        gender: safeTrim(gender),
+        countryCode: safeTrim(countryCode),
+        countryName: safeTrim(countryName),
+        invitedBy: safeTrim(invitedBy) || 'NO_INVITE',
         createdAt: getUgandaTime(),
         balance: '0'
       }
@@ -73,13 +77,15 @@ export async function POST(req) {
 
     if (action === 'login') {
       let { loginType, username, phone, password } = body
-      password = password?.trim()
+      
+      // FIX: Force string before trim
+      password = safeTrim(password)
 
       if (!password) {
         return NextResponse.json({ error: 'Password required' }, { status: 400 })
       }
 
-      let targetUsername = username?.trim()
+      let targetUsername = safeTrim(username)
 
       if (loginType === 'phone') {
         phone = normalizePhone(phone)
@@ -89,13 +95,17 @@ export async function POST(req) {
         }
       }
 
+      if (!targetUsername) {
+        return NextResponse.json({ error: 'Username required' }, { status: 400 })
+      }
+
       const user = await redis.hgetall(`user:${targetUsername}`)
       if (!user || !user.username) {
         return NextResponse.json({ error: 'User not found' }, { status: 401 })
       }
 
-      // Trim both sides when comparing
-      if ((user.password || '').trim() !== password) {
+      // FIX: Compare as strings, both safe-trimmed
+      if (safeTrim(user.password) !== password) {
         return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
       }
 
