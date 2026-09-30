@@ -15,7 +15,7 @@ const vipLevels = [
 ];
 
 const usdtRates = {
-  UGX: 3850, KES: 129.5, TZS: 2680, RWF: 1320, NGN: 1600, GHS: 15.8, ZAR: 18.7,
+  UGX: 3600, KES: 129.5, TZS: 2680, RWF: 1320, NGN: 1600, GHS: 15.8, ZAR: 18.7,
   INR: 83.5, GBP: 0.79, USD: 1, CAD: 1.36, EUR: 0.92, CNY: 7.2, BRL: 5.1,
   ETB: 125, EGP: 50.5, AED: 3.67, SAR: 3.75, TRY: 32, JPY: 153, KRW: 1340,
   PHP: 57.5, PKR: 278, BDT: 117, UZS: 12650, ZMW: 26.5, ZWL: 6000,
