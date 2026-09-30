@@ -44,7 +44,7 @@ function VipBadge({ color = "#111", size = 80, level = 0 }){
       width: size, height: size, borderRadius: '50%',
       background: `conic-gradient(from 0deg, #FDE68A, #D4AF37, #8B6914, #FDE68A, #D4AF37)`,
       padding: size*0.08,
-      boxShadow: `0 3px 10px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.8)`,
+      boxShadow: `0 3px 10px rgba(0,0,0,0.3)`,
       position: 'relative', flexShrink: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center'
     }}>
@@ -55,7 +55,6 @@ function VipBadge({ color = "#111", size = 80, level = 0 }){
           clipPath:'polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%)',
           left:'50%', top:'50%',
           transform:`translate(-50%,-50%) rotate(${i*30}deg) translateY(-${size*0.5}px)`,
-          zIndex:0
         }}/>
       ))}
       <div style={{
@@ -63,15 +62,14 @@ function VipBadge({ color = "#111", size = 80, level = 0 }){
         background: `radial-gradient(circle at 35% 30%, ${color}FF, ${color} 60%, #000)`,
         border: `2px solid #5a4200`,
         display: 'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-        boxShadow: 'inset 0 3px 8px rgba(255,255,255,0.4), inset 0 -4px 8px rgba(0,0,0,0.8)',
         position:'relative', zIndex:1, overflow:'hidden'
       }}>
         <div style={{position:'absolute', top:'6%', left:'15%', width:'60%', height:'32%', background:'linear-gradient(180deg, rgba(255,255,255,0.55), transparent)', borderRadius:'50%'}} />
-        <svg width={size*0.40} height={size*0.30} viewBox="0 0 24 24" style={{zIndex:2, filter:'drop-shadow(0 1px 1px black)'}}>
+        <svg width={size*0.40} height={size*0.30} viewBox="0 0 24 24" style={{zIndex:2}}>
           <path d="M2 18 L2 20 Q12 22 22 20 L22 18 Z M3 16 L5 8 L9 12 L12 6 L15 12 L19 8 L21 16 Z" fill="url(#gold)" stroke="#5a4200" strokeWidth="0.4"/>
           <defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFF7CC"/><stop offset="100%" stopColor="#D4AF37"/></linearGradient></defs>
         </svg>
-        <span style={{fontSize:size*0.15, fontWeight:900, color:'#FDE68A', zIndex:2, textShadow:'0 1px 2px black', marginTop:2}}>VIP{level}</span>
+        <span style={{fontSize:size*0.15, fontWeight:900, color:'#FDE68A', zIndex:2, marginTop:2}}>VIP{level}</span>
       </div>
     </div>
   )
@@ -98,9 +96,7 @@ export default function VipPage(){
       const cur = localStorage.getItem('myCurrency') || 'UGX'
       const sym = localStorage.getItem('myCurrencySymbol') || 'USh'
       const r = usdtRates[cur] || 3600
-      setCurrency(cur)
-      setSymbol(sym)
-      setRate(r)
+      setCurrency(cur); setSymbol(sym); setRate(r)
       if(saved){
         const u = JSON.parse(saved)
         setUser(u)
@@ -116,21 +112,13 @@ export default function VipPage(){
   },[])
 
   const handleUpgrade = (vip) => {
-    if(vip.level <= currentVip){
-      showToast('Already owned')
-      return
-    }
-    if(balance < vip.deposit){
-      showToast('Insufficient balance')
-      return
-    }
+    if(vip.level <= currentVip){ showToast('Already owned'); return }
+    if(balance < vip.deposit){ showToast('Insufficient balance'); return }
     const newBalance = balance - vip.deposit
     const updatedUser = {...user, vip: vip.level, vipLevel: vip.level, balance: newBalance, currentVipColor: vip.color }
     localStorage.setItem('user', JSON.stringify(updatedUser))
     localStorage.setItem('balance', String(newBalance))
-    setBalance(newBalance)
-    setCurrentVip(vip.level)
-    setUser(updatedUser)
+    setBalance(newBalance); setCurrentVip(vip.level); setUser(updatedUser)
     showToast('Upgrade successful')
   }
 
@@ -142,33 +130,33 @@ export default function VipPage(){
         <div className="w-[20px]" />
       </div>
 
-      {/* BLACK TOAST - CENTER */}
       {toast && (
         <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999]">
-          <div className="bg-black text-white px-6 py-3 rounded-full text-[14px] font-bold shadow-2xl border border-zinc-800 min-w-[180px] text-center">
+          <div className="bg-black text-white px-6 py-3 rounded-full text-[14px] font-bold shadow-2xl text-center">
             {toast}
           </div>
         </div>
       )}
 
-      <div className="bg-[#0a0a0a] text-white p-4 min-h-[calc(100vh-56px)]">
+      {/* PURE WHITE BACKGROUND */}
+      <div className="bg-white text-black p-4 min-h-[calc(100vh-56px)]">
         {user && (
-          <div className="max-w-4xl mx-auto mt-2 mb-4 bg-[#1e1e1e] rounded-2xl p-4 flex items-center justify-between border border-zinc-800">
+          <div className="max-w-4xl mx-auto mt-2 mb-4 bg-white rounded-2xl p-4 flex items-center justify-between border border-gray-200 shadow-sm">
             <div className="flex items-center gap-3">
               <VipBadge color={vipLevels[currentVip]?.color || "#111"} size={54} level={currentVip} />
               <div>
-                <div className="font-black text-[16px]">Current: {vipLevels[currentVip]?.name}</div>
-                <div className="text-[12px] text-zinc-400">$ {balance.toFixed(2)} USDT ≈ {symbol} {(balance*rate).toLocaleString()} {currency}</div>
+                <div className="font-black text-[16px] text-black">Current: {vipLevels[currentVip]?.name}</div>
+                <div className="text-[12px] text-gray-500">$ {balance.toFixed(2)} USDT ≈ {symbol} {(balance*rate).toLocaleString()} {currency}</div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[11px] text-zinc-400">VIP</div>
-              <div className="font-black text-[20px] text-yellow-300">{currentVip}</div>
+              <div className="text-[11px] text-gray-400">VIP</div>
+              <div className="font-black text-[20px] text-[#191970]">{currentVip}</div>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto mt-2">
           {vipLevels.map(vip=>{
             const isCurrent = vip.level === currentVip
             const isOwned = vip.level <= currentVip
@@ -176,41 +164,38 @@ export default function VipPage(){
             const localDaily = vip.daily * rate
             const localPerVideo = vip.perVideo * rate
             return(
-              <div key={vip.level} className={`rounded-[26px] p-5 flex flex-col items-center border ${isCurrent? 'border-yellow-400' : 'border-zinc-800'} ${isOwned? 'bg-[#2a2a1e]' : 'bg-[#1e1e1e]'}`}>
+              <div key={vip.level} className={`rounded-[24px] p-5 flex flex-col items-center border ${isCurrent? 'border-yellow-400 bg-[#FFFEF5]' : 'border-gray-200 bg-white'} shadow-sm`}>
                 <VipBadge color={vip.color} size={88} level={vip.level} />
-                <h2 className="text-xl font-black mt-3">{vip.name} {isCurrent && <span className="text-[11px] ml-2 px-2 py-1 rounded-full bg-yellow-400 text-black">CURRENT</span>}</h2>
-                <div className="w-full mt-4 bg-black/40 rounded-2xl p-4 space-y-3 text-[13px]">
+                <h2 className="text-[18px] font-black mt-3 text-black">{vip.name} {isCurrent && <span className="text-[10px] ml-2 px-2 py-1 rounded-full bg-yellow-400 text-black">CURRENT</span>}</h2>
+                <div className="w-full mt-4 bg-gray-50 rounded-2xl p-4 space-y-3 text-[13px] border border-gray-100">
                   <div className="flex justify-between">
-                    <span className="text-zinc-400">Deposit</span>
+                    <span className="text-gray-500">Deposit</span>
                     <span className="text-right">
-                      <span className="font-bold text-yellow-300 block">$ {vip.deposit.toFixed(2)} USDT</span>
-                      <span className="text-[11px] text-zinc-400">≈ {symbol} {localDeposit.toLocaleString()} {currency}</span>
+                      <span className="font-bold text-black block">$ {vip.deposit.toFixed(2)} USDT</span>
+                      <span className="text-[11px] text-gray-500">≈ {symbol} {localDeposit.toLocaleString()} {currency}</span>
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-zinc-400">Daily</span>
+                    <span className="text-gray-500">Daily</span>
                     <span className="text-right">
-                      <span className="font-bold text-green-400 block">$ {vip.daily.toFixed(2)} USDT</span>
-                      <span className="text-[11px] text-zinc-400">≈ {symbol} {localDaily.toLocaleString()} {currency}</span>
+                      <span className="font-bold text-green-600 block">$ {vip.daily.toFixed(2)} USDT</span>
+                      <span className="text-[11px] text-gray-500">≈ {symbol} {localDaily.toLocaleString()} {currency}</span>
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-zinc-400">Videos</span>
+                    <span className="text-gray-500">Videos</span>
                     <span className="text-right">
-                      <span className="font-bold block">{vip.videos} @ $ {vip.perVideo.toFixed(2)}</span>
-                      <span className="text-[11px] text-zinc-400">≈ {symbol} {localPerVideo.toLocaleString()} {currency} each</span>
+                      <span className="font-bold text-black block">{vip.videos} @ $ {vip.perVideo.toFixed(2)}</span>
+                      <span className="text-[11px] text-gray-500">≈ {symbol} {localPerVideo.toLocaleString()} each</span>
                     </span>
                   </div>
-                  <div className="flex justify-between"><span className="text-zinc-400">Require</span><span className="font-bold">{vip.require}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">Require</span><span className="font-bold text-black">{vip.require}</span></div>
                 </div>
                 <button
                   onClick={()=>handleUpgrade(vip)}
                   disabled={isOwned}
-                  className={`mt-4 w-full py-3 rounded-xl font-black text-[14px] tracking-wide active:scale-95 ${isOwned? 'opacity-50' : ''}`}
-                  style={{
-                    background: isOwned? '#333' : 'linear-gradient(90deg, #CFA85B, #FDE68A, #CFA85B)',
-                    color: isOwned? '#888' : '#0A1433'
-                  }}
+                  className={`mt-4 w-full py-3 rounded-xl font-black text-[14px] active:scale-95 ${isOwned? 'bg-gray-200 text-gray-400' : 'text-white'}`}
+                  style={{background: isOwned? '#e5e7eb' : '#191970'}}
                 >
                   {isCurrent? 'CURRENT VIP' : isOwned? 'OWNED' : `UPGRADE - $${vip.deposit.toFixed(2)} USDT`}
                 </button>
