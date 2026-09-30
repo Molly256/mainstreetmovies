@@ -14,7 +14,6 @@ const vipLevels = [
   { level: 7, name: "VIP7", color: "#800080" },
 ];
 
-// USDT -> local currency rates (approx, you can update from admin later)
 const usdtRates = {
   UGX: 3850, KES: 129.5, TZS: 2680, RWF: 1320, NGN: 1600, GHS: 15.8, ZAR: 18.7,
   INR: 83.5, GBP: 0.79, USD: 1, CAD: 1.36, EUR: 0.92, CNY: 7.2, BRL: 5.1,
@@ -32,15 +31,12 @@ const usdtRates = {
   CZK: 23, PLN: 4, HUF: 365, SEK: 10.8, NOK: 10.6, DKK: 6.9,
   ISK: 139, CHF: 0.9, ILS: 3.7, JOD: 0.71, IQD: 1310, IRR: 42000,
   LBP: 89500, SYP: 13000, YER: 530, OMR: 0.38, QAR: 3.64, KWD: 0.30,
-  BHD: 0.37, AFN: 72, PKR: 278, HKD: 7.82, TWD: 32.2, MOP: 8.05,
-  KHR: 4050, LAK: 21600, MMK: 2100, BND: 1.32, FJD: 2.26, TOP: 2.36,
-  WST: 2.77, PGK: 3.9, SBD: 8.4, VUV: 119, XPF: 110, NZD: 1.63,
-  XCD: 2.7, BBD: 2, BSD: 1, BZD: 2, BMD: 1, KYD: 0.82, JMD: 155,
-  TTD: 6.78, AWG: 1.8, ANG: 1.8, HTG: 132, DOP: 58.8, GTQ: 7.76,
-  HNL: 24.7, NIO: 36.7, CRC: 510, PAB: 1, PYG: 7400, BOB: 6.91,
-  GYD: 208, SRD: 33, CUP: 24, BWP: 13.6, ETB: 125, MGA: 4600,
-  MZN: 63.5, STN: 22.5, ANG: 1.8, SBD: 8.4, VES: 36, YER: 530,
-  ZMW: 26.5
+  BHD: 0.37, AFN: 72, HKD: 7.82, TWD: 32.2, MOP: 8.05, KHR: 4050,
+  LAK: 21600, BND: 1.32, FJD: 2.26, TOP: 2.36, WST: 2.77, PGK: 3.9,
+  SBD: 8.4, VUV: 119, XPF: 110, XCD: 2.7, BBD: 2, BSD: 1, BZD: 2,
+  BMD: 1, KYD: 0.82, JMD: 155, TTD: 6.78, AWG: 1.8, ANG: 1.8,
+  HTG: 132, DOP: 58.8, GTQ: 7.76, HNL: 24.7, NIO: 36.7, CRC: 510,
+  PAB: 1, PYG: 7400, BOB: 6.91, GYD: 208, SRD: 33, CUP: 24, VES: 36
 }
 
 function VipBadge({ color = "#111", size = 56, level = 0 }){
@@ -81,18 +77,6 @@ function VipBadge({ color = "#111", size = 56, level = 0 }){
   )
 }
 
-function MoneyBox({ usdt, currency, symbol, label, colorClass }){
-  const rate = usdtRates[currency] || 1
-  const localAmount = usdt * rate
-  return(
-    <div className="py-3 border-b border-gray-100 last:border-0">
-      <p className={`font-black ${colorClass}`}>$ {usdt.toFixed(2)} USDT</p>
-      <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">≈ {symbol} {localAmount.toLocaleString(undefined,{maximumFractionDigits:2})} {currency}</p>
-      <p className="text-[10px] text-gray-400 mt-1">{label}</p>
-    </div>
-  )
-}
-
 export default function MyPage() {
   const router = useRouter()
   const [activeBtn, setActiveBtn] = useState(null)
@@ -100,6 +84,9 @@ export default function MyPage() {
   const [userData, setUserData] = useState(null)
   const [displayPhone, setDisplayPhone] = useState('753185973')
   const [invitecode, setInvitecode] = useState('185973MS')
+  const [currency, setCurrency] = useState('UGX')
+  const [symbol, setSymbol] = useState('USh')
+  const [flag, setFlag] = useState('🇺🇬')
 
   useEffect(() => {
     try {
@@ -113,11 +100,23 @@ export default function MyPage() {
         const inv = u?.invitecode || localStorage.getItem('myInvitecode') || raw.slice(-6) + 'MS'
         setDisplayPhone(dPhone)
         setInvitecode(inv)
+        if(u?.currency) setCurrency(u.currency)
+        else if(localStorage.getItem('myCurrency')) setCurrency(localStorage.getItem('myCurrency'))
+        if(u?.currencySymbol) setSymbol(u.currencySymbol)
+        else if(localStorage.getItem('myCurrencySymbol')) setSymbol(localStorage.getItem('myCurrencySymbol'))
+        if(u?.flag) setFlag(u.flag)
+        else if(localStorage.getItem('myCountryFlag')) setFlag(localStorage.getItem('myCountryFlag'))
       } else {
         const d = localStorage.getItem('myDisplayPhone')
         const inv = localStorage.getItem('myInvitecode')
+        const cur = localStorage.getItem('myCurrency')
+        const sym = localStorage.getItem('myCurrencySymbol')
+        const fl = localStorage.getItem('myCountryFlag')
         if(d) setDisplayPhone(d)
         if(inv) setInvitecode(inv)
+        if(cur) setCurrency(cur)
+        if(sym) setSymbol(sym)
+        if(fl) setFlag(fl)
       }
     } catch {}
   }, [])
@@ -125,8 +124,6 @@ export default function MyPage() {
   const currentVip = Number(userData?.vip?? userData?.vipLevel?? 0)
   const currentVipColor = vipLevels[currentVip]?.color || "#111111"
   const balance = Number(userData?.balance?? 0)
-  const currency = userData?.currency || localStorage.getItem('myCurrency') || 'UGX'
-  const symbol = userData?.currencySymbol || localStorage.getItem('myCurrencySymbol') || 'USh'
   const rate = usdtRates[currency] || 3850
 
   const copyCode = async () => {
@@ -165,7 +162,7 @@ export default function MyPage() {
             <span className="text-[12px] font-bold" style={{color: '#FDE68A'}}>invitecode: {invitecode}</span>
             <span className="text-[11px]" style={{color: '#FDE68A'}}>{copied? '✅' : '📋'}</span>
           </div>
-          <div className="mt-2 text-[11px] text-gray-500">{userData?.flag || '🇺🇬'} {currency} rate: 1 USDT ≈ {symbol} {rate.toLocaleString()} </div>
+          <div className="mt-2 text-[11px] text-gray-500">{flag} {currency} rate: 1 USDT ≈ {symbol} {rate.toLocaleString()} </div>
         </div>
       </div>
 
