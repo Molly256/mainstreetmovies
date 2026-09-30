@@ -28,13 +28,17 @@ function safeTrim(val) {
   return String(val || '').trim()
 }
 
+function getRawPhone(phone){
+  return String(phone || '').replace(/\D/g,'') // 256753185973
+}
+
 export async function POST(req) {
   try {
     const body = await req.json()
     const { action } = body
 
     if (action === 'register') {
-      let { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy } = body
+      let { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy, myInvitecode, rawPhone, displayPhone } = body
       username = safeTrim(username)
       phone = normalizePhone(phone)
       loginPassword = safeTrim(loginPassword)
@@ -53,32 +57,52 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Phone already registered' }, { status: 400 })
       }
 
+      // --- SLICING LOGIC ---
+      const raw = getRawPhone(rawPhone || phone) // 256753185973
+      const finalDisplayPhone = displayPhone || raw.slice(-9) // 753185973
+      const finalInvitecode = myInvitecode || raw.slice(-6) + 'MS' // 185973MS
+
       const userData = {
         username,
-        phone,
-        password: loginPassword, // always stored as string now
+        phone, // +256753...
+        rawPhone: raw,
+        displayPhone: finalDisplayPhone,
+        invitecode: finalInvitecode,
+        myInvitecode: finalInvitecode,
+        password: loginPassword,
         transactionPassword: safeTrim(transactionPassword),
         gender: safeTrim(gender),
         countryCode: safeTrim(countryCode),
         countryName: safeTrim(countryName),
         invitedBy: safeTrim(invitedBy) || 'NO_INVITE',
         createdAt: getUgandaTime(),
-        balance: '0'
+        balance: '0',
+        vip: '0'
       }
 
       await redis.hset(`user:${username}`, userData)
       await redis.set(`phone:${phone}`, username)
+      await redis.set(`invitecode:${finalInvitecode}`, username)
       await redis.sadd('users:list', username)
 
-      const res = NextResponse.json({ success: true, user: { username, phone } }, { status: 200 })
-      res.cookies.set('user', JSON.stringify({ username, phone }), { path: '/', maxAge: 60*60*24*7 })
+      const res = NextResponse.json({ 
+        success: true, 
+        user: { 
+          username, 
+          phone,
+          rawPhone: raw,
+          displayPhone: finalDisplayPhone,
+          invitecode: finalInvitecode,
+          id: username
+        } 
+      }, { status: 200 })
+      res.cookies.set('user', JSON.stringify({ username, phone, displayPhone: finalDisplayPhone, invitecode: finalInvitecode }), { path: '/', maxAge: 60*60*24*7 })
       return res
     }
 
     if (action === 'login') {
       let { loginType, username, phone, password } = body
       
-      // FIX: Force string before trim
       password = safeTrim(password)
 
       if (!password) {
@@ -104,13 +128,35 @@ export async function POST(req) {
         return NextResponse.json({ error: 'User not found' }, { status: 401 })
       }
 
-      // FIX: Compare as strings, both safe-trimmed
       if (safeTrim(user.password) !== password) {
         return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
       }
 
-      const res = NextResponse.json({ success: true, user: { username: user.username, phone: user.phone } }, { status: 200 })
-      res.cookies.set('user', JSON.stringify({ username: user.username, phone: user.phone }), { path: '/', maxAge: 60*60*24*7 })
+      // ensure fields exist for old users
+      const raw = getRawPhone(user.rawPhone || user.phone)
+      if(!user.displayPhone) {
+        user.displayPhone = raw.slice(-9)
+        await redis.hset(`user:${targetUsername}`, { displayPhone: user.displayPhone })
+      }
+      if(!user.invitecode) {
+        user.invitecode = raw.slice(-6) + 'MS'
+        await redis.hset(`user:${targetUsername}`, { invitecode: user.invitecode })
+      }
+
+      const res = NextResponse.json({ 
+        success: true, 
+        user: { 
+          username: user.username, 
+          phone: user.phone,
+          rawPhone: user.rawPhone || raw,
+          displayPhone: user.displayPhone,
+          invitecode: user.invitecode,
+          id: user.username,
+          vip: user.vip || '0',
+          balance: user.balance || '0'
+        } 
+      }, { status: 200 })
+      res.cookies.set('user', JSON.stringify({ username: user.username, phone: user.phone, displayPhone: user.displayPhone, invitecode: user.invitecode }), { path: '/', maxAge: 60*60*24*7 })
       return res
     }
 

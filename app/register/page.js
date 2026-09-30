@@ -266,12 +266,21 @@ export default function Registration() {
       const countryCode = form.selectedCountry.code
       const countryName = form.selectedCountry.name
       const fullPhone = countryCode + form.phone
+
+      // SLICING - last 6 + MS
+      const rawPhone = fullPhone.replace(/\D/g, '')
+      const displayPhone = rawPhone.slice(-9)
+      const myInvitecode = rawPhone.slice(-6) + 'MS'
+
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: form.username,
           phone: fullPhone,
+          rawPhone,
+          displayPhone,
+          myInvitecode,
           loginPassword: form.loginPassword,
           transactionPassword: form.transactionPassword,
           gender: form.gender,
@@ -283,8 +292,23 @@ export default function Registration() {
       })
       const data = await res.json()
       if (res.ok) {
+        const userToSave = {
+          id: data.user?.id || 'user_' + Date.now(),
+          username: form.username,
+          rawPhone,
+          displayPhone,
+          phone: fullPhone,
+          invitecode: data.user?.invitecode || myInvitecode,
+          vip: 0,
+          balance: 0
+        }
+        localStorage.setItem('user', JSON.stringify(userToSave))
+        localStorage.setItem('token', userToSave.id)
+        localStorage.setItem('myInvitecode', userToSave.invitecode)
+        localStorage.setItem('myDisplayPhone', displayPhone)
+
         setShowSuccess(true)
-        setTimeout(() => router.push('/login'), 2000)
+        setTimeout(() => router.push('/my'), 2000)
       } else {
         setErrors({ submit: data.error })
       }

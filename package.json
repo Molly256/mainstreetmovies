@@ -2,11 +2,13 @@
   "name": "mainstreetmovies_new",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:vip": "node seed-vip-videos.js"
   },
   "dependencies": {
     "@upstash/redis": "^1.39.0",

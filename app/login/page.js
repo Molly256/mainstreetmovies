@@ -249,11 +249,28 @@ export default function Login() {
     })
     const data = await res.json()
     if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data.user))
+      // --- ENSURE MY PAGE DATA EXISTS ---
+      const apiUser = data.user || {}
+      const raw = (apiUser.rawPhone || apiUser.phone || fullPhone || '').replace(/\D/g, '')
+      const displayPhone = apiUser.displayPhone || (raw ? raw.slice(-9) : '')
+      const invitecode = apiUser.invitecode || apiUser.myInvitecode || (raw ? raw.slice(-6) + 'MS' : '')
+
+      const userToSave = {
+        ...apiUser,
+        rawPhone: raw,
+        displayPhone,
+        invitecode,
+        phone: apiUser.phone || fullPhone || apiUser.rawPhone
+      }
+
+      localStorage.setItem('user', JSON.stringify(userToSave))
+      localStorage.setItem('token', userToSave.id || apiUser.id)
+      localStorage.setItem('myDisplayPhone', displayPhone)
+      localStorage.setItem('myInvitecode', invitecode)
       sessionStorage.setItem('showLoginNotice', 'true')
       setShowSuccess(true)
       setTimeout(() => {
-        window.location.href = '/dashboard'
+        window.location.href = '/my'
       }, 1500)
     } else {
       setError(data.error || 'Login failed')
@@ -294,7 +311,7 @@ export default function Login() {
         <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: '#fff', padding: '30px 40px', borderRadius: '16px', border: '1px solid #CFA85B', boxShadow: '0 8px 30px rgba(0,0,0,0.4)', zIndex: 10000, textAlign: 'center' }}>
           <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#CFA85B', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#fff', fontSize: '28px', fontWeight: '700' }}>✓</div>
           <div style={{ fontSize: '18px', fontWeight: '600', color: '#000' }}>Login Successful</div>
-          <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>Redirecting to dashboard...</div>
+          <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>Redirecting...</div>
         </div>
       )}
 
