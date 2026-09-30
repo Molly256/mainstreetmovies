@@ -35,18 +35,29 @@ export default function MyPage() {
   const [activeBtn, setActiveBtn] = useState(null)
   const [copied, setCopied] = useState(false)
   const [userData, setUserData] = useState(null)
+  const [displayPhone, setDisplayPhone] = useState('753185973')
+  const [invitecode, setInvitecode] = useState('185973MS')
 
   useEffect(() => {
-    const saved = localStorage.getItem('user')
-    if (saved) {
-      try { setUserData(JSON.parse(saved)) } catch {}
-    }
+    try {
+      const saved = localStorage.getItem('user')
+      if (saved) {
+        const u = JSON.parse(saved)
+        setUserData(u)
+        const rawFallback = '256753185973'
+        const raw = u?.rawPhone || rawFallback
+        const dPhone = u?.displayPhone || u?.myDisplayPhone || raw.slice(-9) || localStorage.getItem('myDisplayPhone') || rawFallback.slice(-9)
+        const inv = u?.invitecode || localStorage.getItem('myInvitecode') || raw.slice(-6) + 'MS'
+        setDisplayPhone(dPhone)
+        setInvitecode(inv)
+      } else {
+        const d = localStorage.getItem('myDisplayPhone')
+        const inv = localStorage.getItem('myInvitecode')
+        if(d) setDisplayPhone(d)
+        if(inv) setInvitecode(inv)
+      }
+    } catch {}
   }, [])
-
-  const rawPhoneFallback = '256753185973'
-  const rawPhone = userData?.rawPhone || rawPhoneFallback
-  const displayPhone = userData?.displayPhone || userData?.myDisplayPhone || rawPhone.slice(-9) || localStorage.getItem('myDisplayPhone') || rawPhoneFallback.slice(-9)
-  const invitecode = userData?.invitecode || localStorage.getItem('myInvitecode') || rawPhone.slice(-6) + 'MS'
 
   const currentVip = Number(userData?.vip?? userData?.vipLevel?? 0)
   const currentVipColor = vipLevels[currentVip]?.color || "#111111"
@@ -70,15 +81,13 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-white pb-[100px]">
-      <div className="h-[56px] w-full px-4 flex items-center justify-between"
-           style={{background: '#191970'}}>
+      <div className="h-[56px] w-full px-4 flex items-center justify-between" style={{background: '#191970'}}>
         <h1 className="font-black text-[20px] tracking-wide" style={{color: '#FDE68A'}}>My</h1>
         <button className="w-8 h-8 rounded-full flex items-center justify-center border" style={{background: 'rgba(253,230,138,0.15)', borderColor: 'rgba(253,230,138,0.3)'}}>
           <span className="text-[16px]" style={{color: '#FDE68A'}}>🎧</span>
         </button>
       </div>
 
-      {/* User Info - NOW WITH CODED BADGE */}
       <div className="bg-white p-4 flex items-start gap-3 border-b border-gray-100">
         <VipBadge color={currentVipColor} size={56} level={currentVip} />
         <div className="flex-1">
@@ -93,7 +102,6 @@ export default function MyPage() {
         </div>
       </div>
 
-      {/* Money Grid */}
       <div className="bg-white mx-3 mt-3 rounded-2xl border border-gray-100 overflow-hidden">
         <div className="grid grid-cols-3 text-center">
           <div className="py-4 border-b border-gray-100"><p className="font-black text-black">$ {balance.toFixed(2)}</p><p className="text-[11px] text-gray-500">Balance</p></div>
@@ -129,7 +137,6 @@ export default function MyPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="bg-white mx-3 mt-3 rounded-2xl border border-gray-100 overflow-hidden">
         {tabs.map((item, idx)=>(
           <Link key={item.label} href={item.href} className={`flex items-center gap-3 px-4 py-[18px] ${idx!== tabs.length-1? 'border-b border-gray-100' : ''} active:bg-gray-50`}>
