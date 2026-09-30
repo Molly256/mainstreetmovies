@@ -27,7 +27,6 @@ const usdtRates = {
   BOB: 6.91, GYD: 208, SRD: 33, CUP: 24, VES: 36
 }
 
-// VIP in USDT - base currency
 const vipLevels = [
   { level: 0, name: "VIP0", color: "#111111", deposit: 0, daily: 0.5, videos: 3, perVideo: 0.16, require: "0 active members" },
   { level: 1, name: "VIP1", color: "#FF1493", deposit: 19.44, daily: 0.5, videos: 3, perVideo: 0.16, require: "0 active members" },
@@ -86,6 +85,12 @@ export default function VipPage(){
   const [currency, setCurrency] = useState('UGX')
   const [symbol, setSymbol] = useState('USh')
   const [rate, setRate] = useState(3600)
+  const [toast, setToast] = useState('')
+
+  const showToast = (msg) => {
+    setToast(msg)
+    setTimeout(()=>setToast(''), 2500)
+  }
 
   useEffect(()=>{
     try{
@@ -112,31 +117,39 @@ export default function VipPage(){
 
   const handleUpgrade = (vip) => {
     if(vip.level <= currentVip){
-      alert(`You are already ${vipLevels[currentVip].name} or higher`)
+      showToast('Already owned')
       return
     }
-    const cost = vip.deposit
-    if(balance < cost){
-      alert(`Insufficient balance. Need $${cost.toFixed(2)} USDT (≈ ${symbol} ${(cost*rate).toLocaleString()} ${currency}), you have $${balance.toFixed(2)} USDT`)
+    if(balance < vip.deposit){
+      showToast('Insufficient balance')
       return
     }
-    const newBalance = balance - cost
+    const newBalance = balance - vip.deposit
     const updatedUser = {...user, vip: vip.level, vipLevel: vip.level, balance: newBalance, currentVipColor: vip.color }
     localStorage.setItem('user', JSON.stringify(updatedUser))
     localStorage.setItem('balance', String(newBalance))
     setBalance(newBalance)
     setCurrentVip(vip.level)
     setUser(updatedUser)
-    alert(`Upgraded to ${vip.name} successfully!`)
+    showToast('Upgrade successful')
   }
 
   return(
-    <div className="min-h-screen bg-white pb-[100px]">
+    <div className="min-h-screen bg-white pb-[100px] relative">
       <div className="h-[56px] w-full px-4 flex items-center justify-between sticky top-0 z-50" style={{background: '#191970'}}>
         <button onClick={()=>router.back()} className="text-[20px] font-black" style={{color: '#FDE68A'}}>‹</button>
         <h1 className="font-black text-[20px] tracking-wide" style={{color: '#FDE68A'}}>VIP LEVELS</h1>
         <div className="w-[20px]" />
       </div>
+
+      {/* BLACK TOAST - CENTER */}
+      {toast && (
+        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999]">
+          <div className="bg-black text-white px-6 py-3 rounded-full text-[14px] font-bold shadow-2xl border border-zinc-800 min-w-[180px] text-center">
+            {toast}
+          </div>
+        </div>
+      )}
 
       <div className="bg-[#0a0a0a] text-white p-4 min-h-[calc(100vh-56px)]">
         {user && (
