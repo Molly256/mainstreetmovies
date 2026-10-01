@@ -18,65 +18,58 @@ export default function TaskPage(){
   const [vipLevel,setVipLevel]=useState(0);
 
   useEffect(()=>{
-    // USE YOUR REAL FILE - not /api/tasks
-    fetch('/trailer_data.json')
-     .then(r=>r.json())
-     .then(data=>{
-        setVideos(data);
-      });
-
-    // VIP from localStorage
+    fetch('/trailer_data.json').then(r=>r.json()).then(data=> setVideos(data))
+   .catch(()=> fetch('/trailers_data.json').then(r=>r.json()).then(data=> setVideos(data)));
     try{
       const u = JSON.parse(localStorage.getItem('user')||'{}');
-      setVipLevel(Number(u.vip?? u.vipLevel?? 0));
+      setVipLevel(Number(u.vip??u.vipLevel??0));
     }catch{}
   },[]);
 
   const vip = VIP[vipLevel] || VIP[0];
-  const usdt = (vip.perVideo / 3600).toFixed(2);
+  const usdt = (vip.perVideo/3600).toFixed(2);
   const daily = videos.slice(0, vip.count);
 
   return(
-    <div className="min-h-screen bg-white p-4 pb-24">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="font-black text-black text-lg">{vip.name}</h2>
-          <p className="text-xs text-gray-500">{vip.count} videos / ${usdt} USDT ≈ {vip.perVideo} UGX each</p>
-        </div>
+    <div className="min-h-screen bg-white pb-24">
+      {/* GOLD HEADER TASKS - MIDNIGHT BLUE BG SAME AS MY PAGE */}
+      <div className="bg-[#191970] px-4 py-5 flex justify-between items-center">
+        <h1 className="font-black text-[22px] text-[#FFD700] tracking-wide">Tasks</h1>
         <Link href="/task/history">
-          <button className="bg-[#191970] px-5 py-2.5 rounded-full font-bold text-white text-sm">
-            Tasks history
+          <button className="bg-white/10 border border-[#FFD700]/30 px-5 py-2.5 rounded-full font-bold text-[#FFD700] text-[12px]">
+            History
           </button>
         </Link>
       </div>
 
-      <div className="space-y-3">
-        {daily.map(v=>(
-          <div key={v.id} className="flex gap-3 border border-gray-200 rounded-xl p-3 bg-white">
-            <div className="w-28 h-20 bg-black rounded-lg overflow-hidden flex-shrink-0">
-              {/* FIX BLACK: encodeURI + preload metadata shows first frame */}
-              <video
-                src={encodeURI(v.src)}
-                muted
-                preload="metadata"
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 flex flex-col justify-between">
-              <div>
-                <p className="font-bold text-black text-[13px] line-clamp-2">{v.title}</p>
-                <p className="text-[11px] text-green-600 font-bold mt-1">+${usdt} USDT ≈ {vip.perVideo} UGX</p>
-              </div>
-              <Link href={`/watch/${v.id}`}>
-                <button className="bg-[#191970] text-white text-xs font-bold px-6 py-2 rounded-full w-fit mt-2">
-                  Watch
-                </button>
-              </Link>
-            </div>
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="font-black text-black text-lg">{vip.name}</h2>
+            <p className="text-xs text-gray-500">{vip.count} videos / ${usdt} USDT ≈ {vip.perVideo} UGX each</p>
           </div>
-        ))}
-        {daily.length===0 && <p className="text-center font-bold text-black mt-20">Loading trailers from /trailer_data.json...</p>}
+          <div className="w-10 h-10 rounded-full bg-[#191970] flex items-center justify-center font-black text-[#FFD700] text-xs">{vipLevel}</div>
+        </div>
+
+        <div className="space-y-3">
+          {daily.map(v=>(
+            <div key={v.id} className="flex gap-3 border border-gray-200 rounded-xl p-3 bg-white">
+              <div className="w-28 h-20 bg-black rounded-lg overflow-hidden flex-shrink-0">
+                <video src={encodeURI(v.src)} muted preload="metadata" playsInline className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <p className="font-bold text-black text-[13px] line-clamp-2">{v.title}</p>
+                  <p className="text-[11px] text-green-600 font-bold mt-1">+${usdt} USDT ≈ {vip.perVideo} UGX</p>
+                </div>
+                <Link href={`/watch/${v.id}`}>
+                  <button className="bg-[#191970] text-[#FFD700] text-xs font-black px-6 py-2 rounded-full w-fit mt-2">Watch</button>
+                </Link>
+              </div>
+            </div>
+          ))}
+          {daily.length===0 && <p className="text-center font-bold text-black mt-20">Loading trailers from /trailer_data.json...</p>}
+        </div>
       </div>
     </div>
   );
