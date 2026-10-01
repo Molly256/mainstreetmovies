@@ -274,6 +274,16 @@ export default function Registration() {
       const displayPhone = rawPhone.slice(-9)
       const myInvitecode = rawPhone.slice(-6) + 'MS'
 
+      // --- VIP0 2 DAYS FLORIDA TIME LOGIC ---
+      const nowFloridaStr = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+      const nowFlorida = new Date(nowFloridaStr);
+      const startFlorida = new Date(nowFlorida);
+      startFlorida.setHours(0,0,0,0);
+      const expiryFlorida = new Date(startFlorida);
+      expiryFlorida.setDate(startFlorida.getDate() + 2);
+      expiryFlorida.setHours(0,0,0,0);
+      // --- END VIP0 LOGIC ---
+
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -292,6 +302,10 @@ export default function Registration() {
           currencySymbol: countrySymbol,
           flag: countryFlag,
           invitedBy: form.inviteCode || 'NO_INVITE',
+          vip: 0,
+          vip0Start: startFlorida.toISOString(),
+          vip0Expiry: expiryFlorida.toISOString(),
+          registeredAt: new Date().toISOString(),
           action: 'register'
         })
       })
@@ -305,12 +319,16 @@ export default function Registration() {
           phone: fullPhone,
           invitecode: data.user?.invitecode || myInvitecode,
           vip: 0,
+          vipLevel: 0,
           balance: 0,
           countryCode,
           countryName,
           currency: countryCurrency,
           currencySymbol: countrySymbol,
           flag: countryFlag,
+          vip0Start: startFlorida.toISOString(),
+          vip0Expiry: expiryFlorida.toISOString(),
+          registeredAt: new Date().toISOString(),
         }
         localStorage.setItem('user', JSON.stringify(userToSave))
         localStorage.setItem('token', userToSave.id)
@@ -320,6 +338,12 @@ export default function Registration() {
         localStorage.setItem('myCurrencySymbol', countrySymbol)
         localStorage.setItem('myCountryName', countryName)
         localStorage.setItem('myCountryFlag', countryFlag)
+        localStorage.setItem('vip0_start', startFlorida.toISOString())
+        localStorage.setItem('vip0_expiry', expiryFlorida.toISOString())
+        localStorage.setItem('registeredAt', new Date().toISOString())
+        localStorage.setItem('balance', '0')
+        localStorage.setItem('completedTasks', JSON.stringify([]))
+        localStorage.setItem('incomeHistory', JSON.stringify([]))
 
         setShowSuccess(true)
         setTimeout(() => router.push('/my'), 2000)

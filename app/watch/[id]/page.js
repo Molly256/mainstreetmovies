@@ -2,6 +2,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
+const PER_VIDEO = {0:600,1:600,2:1300,3:1900,4:2000,5:2500,6:4000,7:6250};
+
 export default function WatchPage(){
   const { id } = useParams();
   const router = useRouter();
@@ -48,11 +50,61 @@ export default function WatchPage(){
   };
 
   const handleEarn = async()=>{
-    try{ await fetch('/api/earn',{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ userId:'user_123', videoId:id })});}catch{}
+    // Get real user & VIP reward
+    const user = JSON.parse(localStorage.getItem('user')||'{}');
+    const userId = user.id || localStorage.getItem('token') || 'guest';
+    const vipLevel = Number(user.vip ?? user.vipLevel ?? 0);
+    const reward = PER_VIDEO[vipLevel] || video?.reward || 600;
+
+    try{ 
+      await fetch('/api/earn',{
+        method:'POST', 
+        headers:{'Content-Type':'application/json'}, 
+        body: JSON.stringify({ userId, videoId:id, amount: reward })
+      });
+    }catch{}
+
+    // 1. Balance for My page
+    const currentBalance = parseFloat(localStorage.getItem('balance') || '0');
+    localStorage.setItem('balance', (currentBalance + reward).toString());
+
+    // Also update user object balance
+    try{
+      user.balance = (Number(user.balance||0) + reward);
+      localStorage.setItem('user', JSON.stringify(user));
+    }catch{}
+
+    // 2. Completed tasks (for Task page to hide video)
+    const completed = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+    if(!completed.includes(String(id))){
+      completed.push(String(id));
+      localStorage.setItem('completedTasks', JSON.stringify(completed));
+    }
     const today = new Date().toDateString();
     const w = JSON.parse(localStorage.getItem('task_'+today)||'[]');
-    localStorage.setItem('task_'+today, JSON.stringify([...w, String(id)]));
-    router.push('/task');
+    if(!w.includes(String(id))){
+      localStorage.setItem('task_'+today, JSON.stringify([...w, String(id)]));
+    }
+
+    // 3. Income history with Florida time YYYY-MM-DD-HH-mm-ss
+    const nyDate = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+    const formatted = `${nyDate.getFullYear()}-${String(nyDate.getMonth()+1).padStart(2,'0')}-${String(nyDate.getDate()).padStart(2,'0')}-${String(nyDate.getHours()).padStart(2,'0')}-${String(nyDate.getMinutes()).padStart(2,'0')}-${String(nyDate.getSeconds()).padStart(2,'0')}`;
+
+    const history = JSON.parse(localStorage.getItem('incomeHistory') || '[]');
+    history.unshift({
+      id: Date.now(),
+      videoId: id,
+      title: video.title,
+      src: video.src,
+      amount: reward,
+      income: reward,
+      time: formatted,
+      date: new Date().toISOString(),
+      status: "success"
+    });
+    localStorage.setItem('incomeHistory', JSON.stringify(history));
+
+    router.push('/task/history');
   };
 
   if(!video) return <div className="min-h-screen bg-black text-white flex items-center justify-center font-bold">Loading trailer {id}...</div>;
@@ -68,7 +120,6 @@ export default function WatchPage(){
       <div className="flex-1 flex items-center justify-center relative bg-black">
         <video ref={videoRef} src={video.src} muted={isMuted} autoPlay playsInline preload="auto" className="w-full max-h-[75vh] bg-black" />
 
-        {/* SOUND TOGGLE BUTTON */}
         <button onClick={toggleSound} className="absolute top-4 right-4 w-11 h-11 bg-black/60 rounded-full flex items-center justify-center border border-white/30 active:scale-90 z-10">
           <span className="text-[20px]">{isMuted? "🔇" : "🔊"}</span>
         </button>
@@ -78,7 +129,7 @@ export default function WatchPage(){
             <div className="bg-white rounded-3xl p-6 w-full max-w-sm text-center">
               <p className="font-black text-black text-[18px]">Task Completed!</p>
               <p className="text-[11px] text-gray-500 mt-1">{video.title}</p>
-              <button onClick={handleEarn} className="mt-4 w-full py-4 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-500 font-black text-black">Earn</button>
+              <button onClick={handleEarn} className="mt-4 w-full py-4 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-500 font-black text-black">Earn {PER_VIDEO[Number(JSON.parse(localStorage.getItem('user')||'{}').vip||0)] || 600} UGX</button>
             </div>
           </div>
         )}

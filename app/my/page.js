@@ -87,6 +87,8 @@ export default function MyPage() {
   const [currency, setCurrency] = useState('UGX')
   const [symbol, setSymbol] = useState('USh')
   const [flag, setFlag] = useState('🇺🇬')
+  const [localBalance, setLocalBalance] = useState(0)
+  const [taskIncome, setTaskIncome] = useState(0)
 
   useEffect(() => {
     try {
@@ -118,12 +120,17 @@ export default function MyPage() {
         if(sym) setSymbol(sym)
         if(fl) setFlag(fl)
       }
+      const b = parseFloat(localStorage.getItem('balance') || '0')
+      setLocalBalance(b)
+      const hist = JSON.parse(localStorage.getItem('incomeHistory') || '[]')
+      const total = hist.reduce((s,h)=> s + (Number(h.amount)||0), 0)
+      setTaskIncome(total)
     } catch {}
   }, [])
 
   const currentVip = Number(userData?.vip?? userData?.vipLevel?? 0)
   const currentVipColor = vipLevels[currentVip]?.color || "#111111"
-  const balance = Number(userData?.balance?? 0)
+  const balance = Number(userData?.balance?? 0) + localBalance
   const rate = usdtRates[currency] || 3850
 
   const copyCode = async () => {
@@ -184,8 +191,8 @@ export default function MyPage() {
             <p className="text-[10px] text-gray-400 mt-1">Withdrawal</p>
           </div>
           <div className="py-3 px-1">
-            <p className="font-black text-[#d4a017] text-[13px]">$ 0.00 USDT</p>
-            <p className="text-[9px] text-gray-500">≈ {symbol} 0 {currency}</p>
+            <p className="font-black text-[#d4a017] text-[13px]">$ {(taskIncome/3600).toFixed(2)} USDT</p>
+            <p className="text-[9px] text-gray-500">≈ {symbol} {taskIncome.toLocaleString()} {currency}</p>
             <p className="text-[10px] text-gray-400 mt-1">Task Income</p>
           </div>
           <div className="py-3 px-1">
