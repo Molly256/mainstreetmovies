@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/dashboard', label: 'Home', emoji: '🏠' },
   { href: '/task', label: 'Task', emoji: '💼' },
-  { href: '/chat', label: 'Chat', emoji: '💬' },
+  { href: '/chatroom', label: 'ChatRoom', emoji: '💬' },
   { href: '/team', label: 'Team', emoji: '👥' },
   { href: '/shares', label: 'Fund', emoji: '💰' },
   { href: '/my', label: 'My', emoji: '👤' },
@@ -34,9 +34,7 @@ export default function BottomNav() {
     }}>
       {navItems.map((item) => {
         const isActive = pathname.startsWith(item.href)
-        // Make middle 2 (Chat & Team) stand out slightly
-        const isMiddle = item.label === 'Chat' || item.label === 'Team'
-        
+        const isMiddle = item.label === 'ChatRoom' || item.label === 'Team'
         return (
           <Link
             key={item.href}
@@ -46,19 +44,19 @@ export default function BottomNav() {
               flexDirection: 'column',
               alignItems: 'center',
               textDecoration: 'none',
-              color: isActive ? '#FDE68A' : 'rgba(255,255,255,0.6)',
+              color: isActive? '#FDE68A' : 'rgba(255,255,255,0.6)',
               fontSize: '10px',
-              fontWeight: isActive ? '800' : '500',
+              fontWeight: isActive? '800' : '500',
               gap: '3px',
               flex: 1
             }}
           >
-            <span style={{ 
-              fontSize: isMiddle ? '24px' : '22px', 
-              filter: isActive ? 'drop-shadow(0 0 8px #FDE68A)' : 'none',
-              background: isActive && isMiddle ? 'rgba(253,230,138,0.15)' : 'transparent',
-              width: isMiddle ? '42px' : 'auto',
-              height: isMiddle ? '32px' : 'auto',
+            <span style={{
+              fontSize: isMiddle? '24px' : '22px',
+              filter: isActive? 'drop-shadow(0 0 8px #FDE68A)' : 'none',
+              background: isActive && isMiddle? 'rgba(253,230,138,0.15)' : 'transparent',
+              width: isMiddle? '42px' : 'auto',
+              height: isMiddle? '32px' : 'auto',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
