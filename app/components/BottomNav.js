@@ -7,7 +7,7 @@ const navItems = [
   { href: '/task', label: 'Task', emoji: '💼' },
   { href: '/chatroom', label: 'ChatRoom', emoji: '💬' },
   { href: '/team', label: 'Team', emoji: '👥' },
-  { href: '/shares', label: 'Fund', emoji: '💰' },
+  { href: '/fund', label: 'Fund', emoji: '💰' },
   { href: '/my', label: 'My', emoji: '👤' },
   { href: '/settings', label: 'Settings', emoji: '⚙️' },
 ]
