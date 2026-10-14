@@ -9,7 +9,6 @@ const navItems = [
   { href: '/team', label: 'Team', emoji: '👥' },
   { href: '/fund', label: 'Fund', emoji: '💰' },
   { href: '/my', label: 'My', emoji: '👤' },
-  { href: '/settings', label: 'Settings', emoji: '⚙️' },
 ]
 
 export default function BottomNav() {

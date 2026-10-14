@@ -89,6 +89,9 @@ export default function MyPage() {
   const [flag, setFlag] = useState('🇺🇬')
   const [localBalance, setLocalBalance] = useState(0)
   const [taskIncome, setTaskIncome] = useState(0)
+  const [showLogout, setShowLogout] = useState(false)
+  const [activePopupBtn, setActivePopupBtn] = useState(null)
+  const [logoutActive, setLogoutActive] = useState(false)
 
   useEffect(() => {
     try {
@@ -139,6 +142,11 @@ export default function MyPage() {
     setTimeout(()=>setCopied(false), 2000)
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    router.push('/login')
+  }
+
   const tabs = [
     { label: 'Income details', href: '/income', emoji: '📋', bg: '#ffe2f0' },
     { label: 'Recharge Record', href: '/recharge-record', emoji: '📄', bg: '#f0e6ff' },
@@ -150,7 +158,7 @@ export default function MyPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white pb-[100px]">
+    <div className="min-h-screen bg-white pb-[120px]">
       <div className="h-[56px] w-full px-4 flex items-center justify-between" style={{background: '#191970'}}>
         <h1 className="font-black text-[20px] tracking-wide" style={{color: '#FDE68A'}}>My</h1>
         <button className="w-8 h-8 rounded-full flex items-center justify-center border" style={{background: 'rgba(253,230,138,0.15)', borderColor: 'rgba(253,230,138,0.3)'}}>
@@ -241,6 +249,68 @@ export default function MyPage() {
           </Link>
         ))}
       </div>
+
+      {/* LOGOUT OVAL BUTTON */}
+      <div className="mt-6 px-5">
+        <button
+          onTouchStart={()=>setLogoutActive(true)}
+          onTouchEnd={()=>setTimeout(()=>setLogoutActive(false),150)}
+          onMouseDown={()=>setLogoutActive(true)}
+          onMouseUp={()=>setTimeout(()=>setLogoutActive(false),150)}
+          onClick={()=>setShowLogout(true)}
+          className="w-full py-[14px] rounded-full font-black text-[15px] border transition-all tracking-wide"
+          style={{
+            background: logoutActive? '#191970' : 'white',
+            color: logoutActive? '#FDE68A' : '#191970',
+            borderColor: '#191970',
+            borderWidth: '2px'
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* LOGOUT CONFIRM POPUP */}
+      {showLogout && (
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-6">
+          <div className="bg-white w-full max-w-[320px] rounded-[20px] p-6 shadow-2xl">
+            <h3 className="font-black text-[18px] text-center">Logout?</h3>
+            <p className="text-[13px] text-gray-500 text-center mt-2">Are you sure you want to logout from your account?</p>
+            <div className="flex gap-3 mt-6">
+              <button
+                onTouchStart={()=>setActivePopupBtn('reject')}
+                onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)}
+                onMouseDown={()=>setActivePopupBtn('reject')}
+                onMouseUp={()=>setTimeout(()=>setActivePopupBtn(null),150)}
+                onClick={()=>setShowLogout(false)}
+                className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all"
+                style={{
+                  background: activePopupBtn==='reject'? '#191970' : 'white',
+                  color: activePopupBtn==='reject'? '#FDE68A' : '#191970',
+                  borderColor: '#191970'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onTouchStart={()=>setActivePopupBtn('confirm')}
+                onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)}
+                onMouseDown={()=>setActivePopupBtn('confirm')}
+                onMouseUp={()=>setTimeout(()=>setActivePopupBtn(null),150)}
+                onClick={handleLogout}
+                className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all"
+                style={{
+                  background: activePopupBtn==='confirm'? '#191970' : 'white',
+                  color: activePopupBtn==='confirm'? '#FDE68A' : '#191970',
+                  borderColor: '#191970'
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
