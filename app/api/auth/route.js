@@ -23,16 +23,13 @@ function getUgandaTime() {
 function normalizePhone(phone) {
   return String(phone || '').replace(/\s+/g, '').trim()
 }
-
 function safeTrim(val) {
   return String(val || '').trim()
 }
-
 function getRawPhone(phone){
   return String(phone || '').replace(/\D/g,'')
 }
 
-// --- NEW: RANDOM 103989-990067 WITH UNIQUENESS CHECK ---
 async function generateUniqueInviteCode() {
   const MIN_CODE = 103989
   const MAX_CODE = 990067
@@ -40,9 +37,7 @@ async function generateUniqueInviteCode() {
   while (tries < 20) {
     const code = Math.floor(Math.random() * (MAX_CODE - MIN_CODE + 1) + MIN_CODE).toString()
     const exists = await redis.get(`invitecode:${code}`)
-    if (!exists) {
-      return code
-    }
+    if (!exists) return code
     tries++
   }
   throw new Error('Failed to generate unique invite code')
@@ -62,103 +57,63 @@ export async function POST(req) {
       if (!username || !phone || !loginPassword) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
       }
-
       const existingUser = await redis.hget(`user:${username}`, 'username')
-      if (existingUser) {
-        return NextResponse.json({ error: 'Username already exists' }, { status: 400 })
-      }
-
+      if (existingUser) return NextResponse.json({ error: 'Username already exists' }, { status: 400 })
       const phoneExists = await redis.get(`phone:${phone}`)
-      if (phoneExists) {
-        return NextResponse.json({ error: 'Phone already registered' }, { status: 400 })
-      }
+      if (phoneExists) return NextResponse.json({ error: 'Phone already registered' }, { status: 400 })
 
-      // --- SLICING LOGIC UPDATED ---
       const raw = getRawPhone(rawPhone || phone)
       const finalDisplayPhone = displayPhone || raw.slice(-9)
-
-      // --- CHANGED: IGNORE CLIENT CODE, GENERATE SERVER SIDE 103989-990067 ---
       const finalInvitecode = await generateUniqueInviteCode()
 
       const userData = {
-        username,
-        phone,
-        rawPhone: raw,
-        displayPhone: finalDisplayPhone,
-        invitecode: finalInvitecode,
-        myInvitecode: finalInvitecode,
-        password: loginPassword,
-        transactionPassword: safeTrim(transactionPassword),
-        gender: safeTrim(gender),
-        countryCode: safeTrim(countryCode),
-        countryName: safeTrim(countryName),
-        invitedBy: safeTrim(invitedBy) || 'NO_INVITE',
-        createdAt: getUgandaTime(),
-        balance: '0',
-        vip: '0'
+        username, phone, rawPhone: raw, displayPhone: finalDisplayPhone,
+        invitecode: finalInvitecode, myInvitecode: finalInvitecode,
+        password: loginPassword, transactionPassword: safeTrim(transactionPassword),
+        gender: safeTrim(gender), countryCode: safeTrim(countryCode),
+        countryName: safeTrim(countryName), invitedBy: safeTrim(invitedBy) || 'NO_INVITE',
+        createdAt: getUgandaTime(), balance: '0', vip: '0'
       }
-
       await redis.hset(`user:${username}`, userData)
       await redis.set(`phone:${phone}`, username)
       await redis.set(`invitecode:${finalInvitecode}`, username)
       await redis.sadd('users:list', username)
 
-      const res = NextResponse.json({ 
-        success: true, 
-        user: { 
-          username, 
-          phone,
-          rawPhone: raw,
-          displayPhone: finalDisplayPhone,
-          invitecode: finalInvitecode,
-          id: username
-        } 
-      }, { status: 200 })
+      const res = NextResponse.json({ success: true, user: { username, phone, rawPhone: raw, displayPhone: finalDisplayPhone, invitecode: finalInvitecode, id: username } }, { status: 200 })
       res.cookies.set('user', JSON.stringify({ username, phone, displayPhone: finalDisplayPhone, invitecode: finalInvitecode }), { path: '/', maxAge: 60*60*24*7 })
       return res
     }
 
     if (action === 'login') {
       let { loginType, username, phone, password } = body
-      
       password = safeTrim(password)
-
-      if (!password) {
-        return NextResponse.json({ error: 'Password required' }, { status: 400 })
-      }
+      if (!password) return NextResponse.json({ error: 'Password required' }, { status: 400 })
 
       let targetUsername = safeTrim(username)
-
       if (loginType === 'phone') {
         phone = normalizePhone(phone)
         targetUsername = await redis.get(`phone:${phone}`)
-        if (!targetUsername) {
-          return NextResponse.json({ error: 'Phone not found. Please register first.' }, { status: 401 })
-        }
+        if (!targetUsername) return NextResponse.json({ error: 'Phone not found. Please register first.' }, { status: 401 })
       }
-
-      if (!targetUsername) {
-        return NextResponse.json({ error: 'Username required' }, { status: 400 })
-      }
+      if (!targetUsername) return NextResponse.json({ error: 'Username required' }, { status: 400 })
 
       const user = await redis.hgetall(`user:${targetUsername}`)
-      if (!user || !user.username) {
-        return NextResponse.json({ error: 'User not found' }, { status: 401 })
-      }
-
-      if (safeTrim(user.password) !== password) {
-        return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
-      }
+      if (!user || !user.username) return NextResponse.json({ error: 'User not found' }, { status: 401 })
+      if (safeTrim(user.password) !== password) return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
 
       const raw = getRawPhone(user.rawPhone || user.phone)
       if(!user.displayPhone) {
         user.displayPhone = raw.slice(-9)
         await redis.hset(`user:${targetUsername}`, { displayPhone: user.displayPhone })
       }
-      // --- FIX OLD USERS WITH OLD FORMAT ---
-      if(!user.invitecode || user.invitecode.includes('MS')) {
+
+      // --- FIXED: safely check invitecode ---
+      const currentInvite = String(user.invitecode || '')
+      if(!currentInvite || currentInvite.includes('MS')) {
         const newCode = await generateUniqueInviteCode()
-        await redis.del(`invitecode:${user.invitecode}`)
+        if (user.invitecode) {
+          try { await redis.del(`invitecode:${user.invitecode}`) } catch {}
+        }
         user.invitecode = newCode
         await redis.hset(`user:${targetUsername}`, { invitecode: newCode, myInvitecode: newCode })
         await redis.set(`invitecode:${newCode}`, targetUsername)
@@ -167,14 +122,9 @@ export async function POST(req) {
       const res = NextResponse.json({ 
         success: true, 
         user: { 
-          username: user.username, 
-          phone: user.phone,
-          rawPhone: user.rawPhone || raw,
-          displayPhone: user.displayPhone,
-          invitecode: user.invitecode,
-          id: user.username,
-          vip: user.vip || '0',
-          balance: user.balance || '0'
+          username: user.username, phone: user.phone, rawPhone: user.rawPhone || raw,
+          displayPhone: user.displayPhone, invitecode: user.invitecode,
+          id: user.username, vip: user.vip || '0', balance: user.balance || '0'
         } 
       }, { status: 200 })
       res.cookies.set('user', JSON.stringify({ username: user.username, phone: user.phone, displayPhone: user.displayPhone, invitecode: user.invitecode }), { path: '/', maxAge: 60*60*24*7 })
@@ -190,7 +140,6 @@ export async function POST(req) {
 
 export async function GET() {
   try {
-    const redis = Redis.fromEnv()
     const users = await redis.smembers('users:list')
     return NextResponse.json({ users, count: users.length })
   } catch (err) {
