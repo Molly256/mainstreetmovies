@@ -23,7 +23,7 @@ export default function BottomNav() {
       left: 0,
       right: 0,
       height: '80px',
-      background: '#0f172a',
+      background: '#4169E1',
       borderTop: '1px solid rgba(207,168,91,0.3)',
       display: 'flex',
       justifyContent: 'space-around',

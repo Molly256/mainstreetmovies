@@ -29,7 +29,23 @@ function safeTrim(val) {
 }
 
 function getRawPhone(phone){
-  return String(phone || '').replace(/\D/g,'') // 256753185973
+  return String(phone || '').replace(/\D/g,'')
+}
+
+// --- NEW: RANDOM 103989-990067 WITH UNIQUENESS CHECK ---
+async function generateUniqueInviteCode() {
+  const MIN_CODE = 103989
+  const MAX_CODE = 990067
+  let tries = 0
+  while (tries < 20) {
+    const code = Math.floor(Math.random() * (MAX_CODE - MIN_CODE + 1) + MIN_CODE).toString()
+    const exists = await redis.get(`invitecode:${code}`)
+    if (!exists) {
+      return code
+    }
+    tries++
+  }
+  throw new Error('Failed to generate unique invite code')
 }
 
 export async function POST(req) {
@@ -38,7 +54,7 @@ export async function POST(req) {
     const { action } = body
 
     if (action === 'register') {
-      let { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy, myInvitecode, rawPhone, displayPhone } = body
+      let { username, phone, loginPassword, transactionPassword, gender, countryCode, countryName, invitedBy, rawPhone, displayPhone } = body
       username = safeTrim(username)
       phone = normalizePhone(phone)
       loginPassword = safeTrim(loginPassword)
@@ -57,14 +73,16 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Phone already registered' }, { status: 400 })
       }
 
-      // --- SLICING LOGIC ---
-      const raw = getRawPhone(rawPhone || phone) // 256753185973
-      const finalDisplayPhone = displayPhone || raw.slice(-9) // 753185973
-      const finalInvitecode = myInvitecode || raw.slice(-6) + 'MS' // 185973MS
+      // --- SLICING LOGIC UPDATED ---
+      const raw = getRawPhone(rawPhone || phone)
+      const finalDisplayPhone = displayPhone || raw.slice(-9)
+
+      // --- CHANGED: IGNORE CLIENT CODE, GENERATE SERVER SIDE 103989-990067 ---
+      const finalInvitecode = await generateUniqueInviteCode()
 
       const userData = {
         username,
-        phone, // +256753...
+        phone,
         rawPhone: raw,
         displayPhone: finalDisplayPhone,
         invitecode: finalInvitecode,
@@ -132,15 +150,18 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
       }
 
-      // ensure fields exist for old users
       const raw = getRawPhone(user.rawPhone || user.phone)
       if(!user.displayPhone) {
         user.displayPhone = raw.slice(-9)
         await redis.hset(`user:${targetUsername}`, { displayPhone: user.displayPhone })
       }
-      if(!user.invitecode) {
-        user.invitecode = raw.slice(-6) + 'MS'
-        await redis.hset(`user:${targetUsername}`, { invitecode: user.invitecode })
+      // --- FIX OLD USERS WITH OLD FORMAT ---
+      if(!user.invitecode || user.invitecode.includes('MS')) {
+        const newCode = await generateUniqueInviteCode()
+        await redis.del(`invitecode:${user.invitecode}`)
+        user.invitecode = newCode
+        await redis.hset(`user:${targetUsername}`, { invitecode: newCode, myInvitecode: newCode })
+        await redis.set(`invitecode:${newCode}`, targetUsername)
       }
 
       const res = NextResponse.json({ 

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -248,6 +248,31 @@ export default function Registration() {
   const [showTxnPass, setShowTxnPass] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
+  // --- NEW: AUTO-FILL FROM /r/[code] LINK ---
+  useEffect(() => {
+    // 1. Check ?code= param (old style)
+    const params = new URLSearchParams(window.location.search)
+    const codeFromQuery = params.get('code')
+
+    // 2. Check localStorage saved by /r/[code] page
+    const codeFromStorage = localStorage.getItem('inviterCode') || localStorage.getItem('pendingInviteCode')
+
+    // 3. Check cookie (fallback)
+    const codeFromCookie = document.cookie.split('; ').find(row => row.startsWith('inviterCode='))?.split('=')[1]
+
+    const finalCode = codeFromQuery || codeFromStorage || codeFromCookie
+
+    if (finalCode && /^\d{6}$/.test(finalCode) || /^\d{6,6}$/.test(finalCode) || (finalCode >= 103989 && finalCode <= 990067)) {
+       // Allow 103989-990067
+       if (finalCode) {
+         setForm(prev => ({ ...prev, inviteCode: finalCode }))
+       }
+    } else if (finalCode) {
+        // Even if not in range yet, still autofill to not lose invite
+        setForm(prev => ({ ...prev, inviteCode: finalCode }))
+    }
+  }, [])
+
   const validate = () => {
     const newErrors = {}
     if (!form.username.trim()) newErrors.username = 'Username is required'
@@ -272,7 +297,12 @@ export default function Registration() {
 
       const rawPhone = fullPhone.replace(/\D/g, '')
       const displayPhone = rawPhone.slice(-9)
-      const myInvitecode = rawPhone.slice(-6) + 'MS'
+
+      // --- CHANGED: RANDOM 103989-990067 ---
+      const MIN_CODE = 103989
+      const MAX_CODE = 990067
+      const myInvitecode = Math.floor(Math.random() * (MAX_CODE - MIN_CODE + 1) + MIN_CODE).toString()
+      // --- END CHANGE ---
 
       // --- VIP0 2 DAYS FLORIDA TIME LOGIC ---
       const nowFloridaStr = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
@@ -344,6 +374,10 @@ export default function Registration() {
         localStorage.setItem('balance', '0')
         localStorage.setItem('completedTasks', JSON.stringify([]))
         localStorage.setItem('incomeHistory', JSON.stringify([]))
+
+        // clear inviter code after use
+        localStorage.removeItem('inviterCode')
+        localStorage.removeItem('pendingInviteCode')
 
         setShowSuccess(true)
         setTimeout(() => router.push('/my'), 2000)

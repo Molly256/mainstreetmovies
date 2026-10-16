@@ -38,12 +38,12 @@ export default function FundPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f7fb] pb-[100px]">
-      <div className="h-[65px] bg-[#0f172a] flex items-center px-5 border-b border-[#CFA85B]/20">
+      <div className="h-[65px] bg-[#4169E1] flex items-center px-5 border-b border-[#CFA85B]/20">
         <h1 className="text-[#FDE68A] font-black tracking-[0.2em] text-[18px]">FUND</h1>
       </div>
 
       <div className="p-4 flex flex-col gap-4">
-        <div className="rounded-[20px] p-5 bg-[#0f172a]">
+        <div className="rounded-[20px] p-5 bg-[#4169E1]">
           <div className="inline-block bg-white/10 rounded-full px-3 py-1 mb-3">
             <p className="text-[#CFA85B] text-[11px] font-bold">mainstreetmovies Fund Project</p>
           </div>
@@ -52,8 +52,8 @@ export default function FundPage() {
         </div>
 
         <div className="flex bg-white rounded-full p-1 border border-slate-100">
-          <button onClick={() => setTab('plans')} className={`flex-1 h-10 rounded-full font-bold text-[13px] ${tab === 'plans'? 'bg-[#0f172a] text-[#FDE68A]' : 'text-slate-500'}`}>Fund Plans</button>
-          <button onClick={() => setTab('myfunds')} className={`flex-1 h-10 rounded-full font-bold text-[13px] ${tab === 'myfunds'? 'bg-[#0f172a] text-[#FDE68A]' : 'text-slate-500'}`}>My Funds</button>
+          <button onClick={() => setTab('plans')} className={`flex-1 h-10 rounded-full font-bold text-[13px] ${tab === 'plans'? 'bg-[#4169E1] text-[#FDE68A]' : 'text-slate-500'}`}>Fund Plans</button>
+          <button onClick={() => setTab('myfunds')} className={`flex-1 h-10 rounded-full font-bold text-[13px] ${tab === 'myfunds'? 'bg-[#4169E1] text-[#FDE68A]' : 'text-slate-500'}`}>My Funds</button>
         </div>
 
         {tab === 'plans' && (
@@ -73,15 +73,15 @@ export default function FundPage() {
                   <div className="bg-[#f8fafc] rounded-[10px] p-2.5">
                     <p className="text-[10px] text-slate-400">Investment</p>
                     <p className="font-bold text-[13px]">{plan.invest.toFixed(2)} USDT</p>
-                    {convert(plan.invest) && <p className="text-[10px] text-[#0f172a] font-bold mt-1">{convert(plan.invest)}</p>}
+                    {convert(plan.invest) && <p className="text-[10px] text-[#4169E1] font-bold mt-1">{convert(plan.invest)}</p>}
                   </div>
                   <div className="bg-[#f8fafc] rounded-[10px] p-2.5">
                     <p className="text-[10px] text-slate-400">Daily income</p>
-                    <p className="font-bold text-[13px] text-[#0f172a]">{plan.daily.toFixed(2)} USDT</p>
-                    {convert(plan.daily) && <p className="text-[10px] text-[#0f172a] font-bold mt-1">{convert(plan.daily)}</p>}
+                    <p className="font-bold text-[13px] text-[#4169E1]">{plan.daily.toFixed(2)} USDT</p>
+                    {convert(plan.daily) && <p className="text-[10px] text-[#4169E1] font-bold mt-1">{convert(plan.daily)}</p>}
                   </div>
                 </div>
-                <button onClick={() => joinPlan(plan)} className="w-full h-11 bg-[#0f172a] text-[#FDE68A] rounded-full font-black text-[13px]">Join now</button>
+                <button onClick={() => joinPlan(plan)} className="w-full h-11 bg-[#4169E1] text-[#FDE68A] rounded-full font-black text-[13px]">Join now</button>
               </div>
             ))}
           </div>
@@ -93,7 +93,7 @@ export default function FundPage() {
               myFunds.map((f,i) => (
                 <div key={i} className="bg-white rounded-[16px] p-4 border">
                   <div className="flex justify-between"><h4 className="font-bold text-[13px]">{f.name}</h4><span className="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-bold">{f.status}</span></div>
-                  <p className="text-[12px] mt-2">Daily: <b>{f.daily} USDT</b> {convert(f.daily) && <span className="text-[#0f172a] font-bold">/ {convert(f.daily)}</span>}</p>
+                  <p className="text-[12px] mt-2">Daily: <b>{f.daily} USDT</b> {convert(f.daily) && <span className="text-[#4169E1] font-bold">/ {convert(f.daily)}</span>}</p>
                 </div>
               ))}
           </div>

@@ -159,7 +159,7 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-white pb-[120px]">
-      <div className="h-[56px] w-full px-4 flex items-center justify-between" style={{background: '#191970'}}>
+      <div className="h-[56px] w-full px-4 flex items-center justify-between" style={{background: '#4169E1'}}>
         <h1 className="font-black text-[20px] tracking-wide" style={{color: '#FDE68A'}}>My</h1>
         <button className="w-8 h-8 rounded-full flex items-center justify-center border" style={{background: 'rgba(253,230,138,0.15)', borderColor: 'rgba(253,230,138,0.3)'}}>
           <span className="text-[16px]" style={{color: '#FDE68A'}}>🎧</span>
@@ -171,9 +171,9 @@ export default function MyPage() {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="font-black text-[20px] text-black">{displayPhone}</span>
-            <span className="px-[10px] py-[2px] rounded-full text-[11px] font-black text-white" style={{background: '#191970', border: '1px solid #FDE68A'}}>VIP {currentVip}</span>
+            <span className="px-[10px] py-[2px] rounded-full text-[11px] font-black text-white" style={{background: '#4169E1', border: '1px solid #FDE68A'}}>VIP {currentVip}</span>
           </div>
-          <div onClick={copyCode} className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full cursor-pointer active:scale-95 transition" style={{background: '#191970'}}>
+          <div onClick={copyCode} className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full cursor-pointer active:scale-95 transition" style={{background: '#4169E1'}}>
             <span className="text-[12px] font-bold" style={{color: '#FDE68A'}}>invitecode: {invitecode}</span>
             <span className="text-[11px]" style={{color: '#FDE68A'}}>{copied? '✅' : '📋'}</span>
           </div>
@@ -215,7 +215,7 @@ export default function MyPage() {
           </div>
         </div>
 
-        <div className="mx-2 mt-2 rounded-xl px-4 py-3.5 flex items-center justify-between" style={{background: '#191970'}}>
+        <div className="mx-2 mt-2 rounded-xl px-4 py-3.5 flex items-center justify-between" style={{background: '#4169E1'}}>
           <div className="flex items-center gap-2">
             <VipBadge color={currentVipColor} size={32} level={currentVip} />
             <span className="font-black text-[14px]" style={{color: '#FDE68A'}}>{vipLevels[currentVip]?.name} Active</span>
@@ -233,7 +233,7 @@ export default function MyPage() {
               onMouseDown={()=>setActiveBtn(b.id)} onMouseUp={()=>setTimeout(()=>setActiveBtn(null),150)}
               onClick={()=>router.push(b.href)}
               className="flex-1 py-3.5 rounded-full font-black text-[15px] border transition-all"
-              style={{background: activeBtn===b.id? '#191970' : 'white', color: activeBtn===b.id? 'white' : 'black', borderColor: activeBtn===b.id? '#191970' : '#e5e7eb'}}>
+              style={{background: activeBtn===b.id? '#4169E1' : 'white', color: activeBtn===b.id? 'white' : 'black', borderColor: activeBtn===b.id? '#4169E1' : '#e5e7eb'}}>
               {b.label}
             </button>
           ))}
@@ -250,7 +250,6 @@ export default function MyPage() {
         ))}
       </div>
 
-      {/* LOGOUT OVAL BUTTON */}
       <div className="mt-6 px-5">
         <button
           onTouchStart={()=>setLogoutActive(true)}
@@ -260,9 +259,9 @@ export default function MyPage() {
           onClick={()=>setShowLogout(true)}
           className="w-full py-[14px] rounded-full font-black text-[15px] border transition-all tracking-wide"
           style={{
-            background: logoutActive? '#191970' : 'white',
-            color: logoutActive? '#FDE68A' : '#191970',
-            borderColor: '#191970',
+            background: logoutActive? '#4169E1' : 'white',
+            color: logoutActive? '#FDE68A' : '#4169E1',
+            borderColor: '#4169E1',
             borderWidth: '2px'
           }}
         >
@@ -270,7 +269,6 @@ export default function MyPage() {
         </button>
       </div>
 
-      {/* LOGOUT CONFIRM POPUP */}
       {showLogout && (
         <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-6">
           <div className="bg-white w-full max-w-[320px] rounded-[20px] p-6 shadow-2xl">
@@ -281,13 +279,13 @@ export default function MyPage() {
                 onTouchStart={()=>setActivePopupBtn('reject')}
                 onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)}
                 onMouseDown={()=>setActivePopupBtn('reject')}
-                onMouseUp={()=>setTimeout(()=>setActivePopupBtn(null),150)}
+                onMouseUp={()=>setActivePopupBtn(null),150)}
                 onClick={()=>setShowLogout(false)}
                 className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all"
                 style={{
-                  background: activePopupBtn==='reject'? '#191970' : 'white',
-                  color: activePopupBtn==='reject'? '#FDE68A' : '#191970',
-                  borderColor: '#191970'
+                  background: activePopupBtn==='reject'? '#4169E1' : 'white',
+                  color: activePopupBtn==='reject'? '#FDE68A' : '#4169E1',
+                  borderColor: '#4169E1'
                 }}
               >
                 Cancel
@@ -300,9 +298,9 @@ export default function MyPage() {
                 onClick={handleLogout}
                 className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all"
                 style={{
-                  background: activePopupBtn==='confirm'? '#191970' : 'white',
-                  color: activePopupBtn==='confirm'? '#FDE68A' : '#191970',
-                  borderColor: '#191970'
+                  background: activePopupBtn==='confirm'? '#4169E1' : 'white',
+                  color: activePopupBtn==='confirm'? '#FDE68A' : '#4169E1',
+                  borderColor: '#4169E1'
                 }}
               >
                 Confirm

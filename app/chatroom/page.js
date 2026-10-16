@@ -59,7 +59,7 @@ export default function ChatRoom() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <div className="sticky top-0 z-20 w-full h-[65px] bg-[#0f172a] flex items-center justify-center border-b border-[#CFA85B]/30">
+      <div className="sticky top-0 z-20 w-full h-[65px] bg-[#4169E1] flex items-center justify-center border-b border-[#CFA85B]/30">
         <h1 className="text-[#FDE68A] font-black tracking-[0.3em] text-[18px]">
           CHATROOM
         </h1>
@@ -120,7 +120,7 @@ export default function ChatRoom() {
 
         <button
           onClick={sendMessage}
-          className="w-11 h-11 rounded-full bg-[#0f172a] text-[#FDE68A] flex items-center justify-center font-bold shrink-0 active:scale-95 transition"
+          className="w-11 h-11 rounded-full bg-[#4169E1] text-[#FDE68A] flex items-center justify-center font-bold shrink-0 active:scale-95 transition"
         >
           ➤
         </button>

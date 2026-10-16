@@ -124,7 +124,7 @@ export default function VipPage(){
 
   return(
     <div className="min-h-screen bg-white pb-[100px] relative">
-      <div className="h-[56px] w-full px-4 flex items-center justify-between sticky top-0 z-50" style={{background: '#191970'}}>
+      <div className="h-[56px] w-full px-4 flex items-center justify-between sticky top-0 z-50" style={{background: '#4169E1'}}>
         <button onClick={()=>router.back()} className="text-[20px] font-black" style={{color: '#FDE68A'}}>‹</button>
         <h1 className="font-black text-[20px] tracking-wide" style={{color: '#FDE68A'}}>VIP LEVELS</h1>
         <div className="w-[20px]" />
@@ -138,7 +138,6 @@ export default function VipPage(){
         </div>
       )}
 
-      {/* PURE WHITE BACKGROUND */}
       <div className="bg-white text-black p-4 min-h-[calc(100vh-56px)]">
         {user && (
           <div className="max-w-4xl mx-auto mt-2 mb-4 bg-white rounded-2xl p-4 flex items-center justify-between border border-gray-200 shadow-sm">
@@ -151,7 +150,7 @@ export default function VipPage(){
             </div>
             <div className="text-right">
               <div className="text-[11px] text-gray-400">VIP</div>
-              <div className="font-black text-[20px] text-[#191970]">{currentVip}</div>
+              <div className="font-black text-[20px] text-[#4169E1]">{currentVip}</div>
             </div>
           </div>
         )}
@@ -195,7 +194,7 @@ export default function VipPage(){
                   onClick={()=>handleUpgrade(vip)}
                   disabled={isOwned}
                   className={`mt-4 w-full py-3 rounded-xl font-black text-[14px] active:scale-95 ${isOwned? 'bg-gray-200 text-gray-400' : 'text-white'}`}
-                  style={{background: isOwned? '#e5e7eb' : '#191970'}}
+                  style={{background: isOwned? '#e5e7eb' : '#4169E1'}}
                 >
                   {isCurrent? 'CURRENT VIP' : isOwned? 'OWNED' : `UPGRADE - $${vip.deposit.toFixed(2)} USDT`}
                 </button>
