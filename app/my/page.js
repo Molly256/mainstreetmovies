@@ -1,4 +1,3 @@
-// FIXED FILE - copy all
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -104,6 +103,7 @@ export default function MyPage() {
     { label: 'Income details', href: '/income', emoji: '📋', bg: '#ffe2f0' },
     { label: 'Recharge Record', href: '/recharge-record', emoji: '📄', bg: '#f0e6ff' },
     { label: 'Withdrawal records', href: '/withdraw-record', emoji: '↗️', bg: '#e6fbe6' },
+    { label: 'Bind Wallet', href: '/bind-wallet', emoji: '💳', bg: '#FFF3CD' },
     { label: 'Change password', href: '/change-password', emoji: '🔓', bg: '#ffe2f0' },
     { label: 'Change fund password', href: '/change-fund-password', emoji: '🔒', bg: '#fff0e0' },
     { label: 'APP Download', href: '/app-download', emoji: '⬇️', bg: '#e6f0ff' },
@@ -168,8 +168,8 @@ export default function MyPage() {
             <h3 className="font-black text-[18px] text-center">Logout?</h3>
             <p className="text-[13px] text-gray-500 text-center mt-2">Are you sure you want to logout from your account?</p>
             <div className="flex gap-3 mt-6">
-              <button onTouchStart={()=>setActivePopupBtn('reject')} onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)} onMouseDown={()=>setActivePopupBtn('reject')} onMouseUp={()=>setTimeout(()=>setActivePopupBtn(null),150)} onClick={()=>setShowLogout(false)} className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all" style={{ background: activePopupBtn==='reject'? '#4169E1' : 'white', color: activePopupBtn==='reject'? '#FDE68A' : '#4169E1', borderColor: '#4169E1' }}>Cancel</button>
-              <button onTouchStart={()=>setActivePopupBtn('confirm')} onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)} onMouseDown={()=>setActivePopupBtn('confirm')} onMouseUp={()=>setTimeout(()=>setActivePopupBtn(null),150)} onClick={handleLogout} className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all" style={{ background: activePopupBtn==='confirm'? '#4169E1' : 'white', color: activePopupBtn==='confirm'? '#FDE68A' : '#4169E1', borderColor: '#4169E1' }}>Confirm</button>
+              <button onTouchStart={()=>setActivePopupBtn('reject')} onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)} onMouseDown={()=>setActivePopupBtn('reject')} onMouseUp={()=>setActivePopupBtn(null),150)} onClick={()=>setShowLogout(false)} className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all" style={{ background: activePopupBtn==='reject'? '#4169E1' : 'white', color: activePopupBtn==='reject'? '#FDE68A' : '#4169E1', borderColor: '#4169E1' }}>Cancel</button>
+              <button onTouchStart={()=>setActivePopupBtn('confirm')} onTouchEnd={()=>setTimeout(()=>setActivePopupBtn(null),150)} onMouseDown={()=>setActivePopupBtn('confirm')} onMouseUp={()=>setActivePopupBtn(null),150)} onClick={handleLogout} className="flex-1 py-3 rounded-full font-bold text-[14px] border transition-all" style={{ background: activePopupBtn==='confirm'? '#4169E1' : 'white', color: activePopupBtn==='confirm'? '#FDE68A' : '#4169E1', borderColor: '#4169E1' }}>Confirm</button>
             </div>
           </div>
         </div>
