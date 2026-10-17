@@ -15,7 +15,6 @@ export default function WithdrawPage() {
 
   const withdrawList = [5,11,30,65,75,200,500,800,1200]
 
-  // FULL WORLD COUNTRIES CURRENCIES BY PHONE CODE
   const COUNTRY_CURRENCY = {
     '1': { code: 'USD', symbol: '$', rate: 1, name: 'USA/Canada' },
     '1242': { code: 'BSD', symbol: 'B$', rate: 1, name: 'Bahamas' },
@@ -249,15 +248,12 @@ export default function WithdrawPage() {
   const getCurrencyInfo = (phone) => {
     let p = String(phone || '').replace(/[^0-9]/g, '')
     if(!p) return { code: 'UGX', symbol: 'USh', rate: 3700 }
-    // special case Ugandan local 07...
     if(p.startsWith('07') || p.startsWith('7')) return COUNTRY_CURRENCY['256']
     if(p.startsWith('0')) p = p.substring(1)
-    // longest prefix match
     const keys = Object.keys(COUNTRY_CURRENCY).sort((a,b)=>b.length - a.length)
     for(let k of keys){
       if(p.startsWith(k)) return COUNTRY_CURRENCY[k]
     }
-    // try with country code without leading 00
     if(p.startsWith('00')) {
       const p2 = p.substring(2)
       for(let k of keys){
@@ -300,85 +296,85 @@ export default function WithdrawPage() {
     <div style={{ minHeight:'100vh', background:'#F5F7FF', fontFamily:'system-ui' }}>
       <div style={{ background:'linear-gradient(90deg,#0F1E8A,#1E3A8A)', padding:'18px', textAlign:'center', borderBottom:'2px solid #CFA85B' }}>
         <h1 style={{ margin:0, color:'#FDE68A', fontWeight:'900', fontSize:'20px' }}>Withdrawal</h1>
-        <div style={{ color:'#C7B299', fontSize:'10px', marginTop:'4px' }}>{phone ? `+${phone} • ${curr.code} (${curr.name})` : ''}</div>
+        <div style={{ color:'#fff', fontSize:'11px', marginTop:'4px', fontWeight:'700' }}>{phone ? `+${phone} • ${curr.code} (${curr.name})` : ''}</div>
       </div>
 
       <div style={{ maxWidth:'500px', margin:'0 auto', padding:'14px' }}>
         <div style={{ background:'linear-gradient(90deg,#1A2FBF,#2E4BE0)', borderRadius:'20px', padding:'18px', color:'#fff' }}>
-          <div style={{ fontWeight:'800' }}>Withdrawal</div>
-          <div style={{ fontSize:'12px', opacity:0.8 }}>USDT-{usdtNet}</div>
-          <div style={{ marginTop:'12px', fontSize:'12px', opacity:0.8 }}>Withdrawable amount</div>
-          <div style={{ fontSize:'30px', fontWeight:'900' }}>${balance.toFixed(2)}</div>
-          <div style={{ fontSize:'11px' }}>{curr.symbol} {toLocal(balance)} {curr.code}</div>
+          <div style={{ fontWeight:'900', color:'#fff' }}>Withdrawal</div>
+          <div style={{ fontSize:'12px', color:'#fff', fontWeight:'700' }}>USDT-{usdtNet}</div>
+          <div style={{ marginTop:'12px', fontSize:'12px', color:'#fff', fontWeight:'700' }}>Withdrawable amount</div>
+          <div style={{ fontSize:'30px', fontWeight:'900', color:'#fff' }}>${balance.toFixed(2)}</div>
+          <div style={{ fontSize:'11px', color:'#fff', fontWeight:'700' }}>{curr.symbol} {toLocal(balance)} {curr.code}</div>
         </div>
 
-        <div style={{ marginTop:'18px', fontWeight:'800', color:'#0A1433' }}>Withdrawal Type</div>
+        <div style={{ marginTop:'18px', fontWeight:'900', color:'#000' }}>Withdrawal Type</div>
         <div style={{ display:'flex', gap:'10px', marginTop:'8px' }}>
-          <button onClick={()=>setWithdrawType('usdt')} style={{ flex:1, height:'60px', borderRadius:'14px', border: withdrawType==='usdt' ? '2px solid #CFA85B' : '1px solid #ddd', background: withdrawType==='usdt' ? '#1A2FBF' : '#fff', color: withdrawType==='usdt' ? '#FDE68A' : '#333', fontWeight:'800', cursor:'pointer' }}>USDT</button>
-          <button onClick={()=>setWithdrawType('mobile')} style={{ flex:1, height:'60px', borderRadius:'14px', border: withdrawType==='mobile' ? '2px solid #CFA85B' : '1px solid #ddd', background: withdrawType==='mobile' ? '#1A2FBF' : '#fff', color: withdrawType==='mobile' ? '#FDE68A' : '#333', fontWeight:'800', cursor:'pointer' }}>MOBILE MONEY</button>
+          <button onClick={()=>setWithdrawType('usdt')} style={{ flex:1, height:'60px', borderRadius:'14px', border: withdrawType==='usdt' ? '2px solid #CFA85B' : '1px solid #000', background: withdrawType==='usdt' ? '#1A2FBF' : '#fff', color: withdrawType==='usdt' ? '#FDE68A' : '#000', fontWeight:'900', cursor:'pointer' }}>USDT</button>
+          <button onClick={()=>setWithdrawType('mobile')} style={{ flex:1, height:'60px', borderRadius:'14px', border: withdrawType==='mobile' ? '2px solid #CFA85B' : '1px solid #000', background: withdrawType==='mobile' ? '#1A2FBF' : '#fff', color: withdrawType==='mobile' ? '#FDE68A' : '#000', fontWeight:'900', cursor:'pointer' }}>MOBILE MONEY</button>
         </div>
 
         {withdrawType==='usdt' && (
           <div style={{ display:'flex', gap:'8px', marginTop:'10px' }}>
-            <button onClick={()=>setUsdtNet('BEP20')} style={{ flex:1, height:'40px', borderRadius:'10px', border: usdtNet==='BEP20' ? '2px solid #1A2FBF' : '1px solid #ddd', background:'#fff', fontWeight:'700', fontSize:'12px' }}>BEP20-USDT</button>
-            <button onClick={()=>setUsdtNet('TRC20')} style={{ flex:1, height:'40px', borderRadius:'10px', border: usdtNet==='TRC20' ? '2px solid #1A2FBF' : '1px solid #ddd', background:'#fff', fontWeight:'700', fontSize:'12px' }}>TRC20-USDT</button>
+            <button onClick={()=>setUsdtNet('BEP20')} style={{ flex:1, height:'40px', borderRadius:'10px', border: usdtNet==='BEP20' ? '2px solid #1A2FBF' : '1px solid #000', background:'#fff', fontWeight:'900', fontSize:'12px', color:'#000' }}>BEP20-USDT</button>
+            <button onClick={()=>setUsdtNet('TRC20')} style={{ flex:1, height:'40px', borderRadius:'10px', border: usdtNet==='TRC20' ? '2px solid #1A2FBF' : '1px solid #000', background:'#fff', fontWeight:'900', fontSize:'12px', color:'#000' }}>TRC20-USDT</button>
           </div>
         )}
         {withdrawType==='mobile' && (
           <div style={{ display:'flex', gap:'8px', marginTop:'10px' }}>
-            <button onClick={()=>setMobileNet('AIRTEL')} style={{ flex:1, height:'40px', borderRadius:'10px', border:'1px solid #ddd', background:'#fff', color:'#FF0000', fontWeight:'800', fontSize:'11px' }}>AIRTEL</button>
-            <button onClick={()=>setMobileNet('MTN')} style={{ flex:1, height:'40px', borderRadius:'10px', border:'1px solid #ddd', background:'#fff', color:'#000', fontWeight:'800', fontSize:'11px' }}>MTN</button>
+            <button onClick={()=>setMobileNet('AIRTEL')} style={{ flex:1, height:'40px', borderRadius:'10px', border: mobileNet==='AIRTEL' ? '2px solid #FF0000' : '1px solid #000', background:'#fff', color:'#000', fontWeight:'900', fontSize:'11px' }}>AIRTEL</button>
+            <button onClick={()=>setMobileNet('MTN')} style={{ flex:1, height:'40px', borderRadius:'10px', border: mobileNet==='MTN' ? '2px solid #FFCC00' : '1px solid #000', background:'#fff', color:'#000', fontWeight:'900', fontSize:'11px' }}>MTN</button>
           </div>
         )}
 
         {withdrawType && (
           <div style={{ marginTop:'16px' }}>
-            <div style={{ fontSize:'12px', color:'#666', marginBottom:'6px' }}>Withdrawal Address</div>
-            <div style={{ background:'#fff', borderRadius:'12px', padding:'14px', border:'1px solid #ddd', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              {hasWallet ? <div><div style={{ fontWeight:'700', fontSize:'13px' }}>{wallet.name}</div><div style={{ fontSize:'12px', wordBreak:'break-all' }}>{wallet.addr}</div></div> : <div style={{ fontSize:'12px', color:'#999' }}>Please bind address</div>}
+            <div style={{ fontSize:'13px', color:'#000', marginBottom:'6px', fontWeight:'900' }}>Withdrawal Address</div>
+            <div style={{ background:'#fff', borderRadius:'12px', padding:'14px', border:'1px solid #000', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              {hasWallet ? <div><div style={{ fontWeight:'900', fontSize:'13px', color:'#000' }}>{wallet.name}</div><div style={{ fontSize:'12px', wordBreak:'break-all', color:'#000', fontWeight:'700' }}>{wallet.addr}</div></div> : <div style={{ fontSize:'12px', color:'#000', fontWeight:'800' }}>Please bind address</div>}
               {!hasWallet ? (
-                <button onClick={()=>router.push('/bind-wallet')} style={{ background:'#2E4BE0', color:'#000', fontWeight:'600', border:'none', borderRadius:'20px', padding:'7px 14px', fontSize:'12px', cursor:'pointer' }}>Bind Wallet</button>
-              ) : <button onClick={()=>router.push('/bind-wallet')} style={{ background:'none', border:'none', color:'#1A2FBF', fontSize:'11px' }}>Change</button>}
+                <button onClick={()=>router.push('/bind-wallet')} style={{ background:'#2E4BE0', color:'#FDE68A', fontWeight:'900', border:'none', borderRadius:'20px', padding:'7px 14px', fontSize:'12px', cursor:'pointer' }}>Bind Wallet</button>
+              ) : <button onClick={()=>router.push('/bind-wallet')} style={{ background:'none', border:'none', color:'#000', fontSize:'12px', fontWeight:'900' }}>Change</button>}
             </div>
           </div>
         )}
 
         <div style={{ marginTop:'16px' }}>
-          <div style={{ fontSize:'12px', color:'#666', marginBottom:'6px' }}>Withdrawal amount</div>
-          <div style={{ background:'#fff', borderRadius:'12px', padding:'12px', border:'1px solid #ddd' }}>
-            <input value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Please enter withdrawal amount" type="number" style={{ width:'100%', border:'none', outline:'none' }} />
+          <div style={{ fontSize:'13px', color:'#000', marginBottom:'6px', fontWeight:'900' }}>Withdrawal amount</div>
+          <div style={{ background:'#fff', borderRadius:'12px', padding:'12px', border:'1px solid #000' }}>
+            <input value={amount} onChange={e=>setAmount(e.target.value)} placeholder="Please enter withdrawal amount" type="number" style={{ width:'100%', border:'none', outline:'none', color:'#000', fontWeight:'700' }} />
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px', marginTop:'10px' }}>
             {withdrawList.map(v=>(
-              <button key={v} onClick={()=>setAmount(String(v))} style={{ background: amount==v ? '#0F1E8A' : '#fff', color: amount==v ? '#FDE68A' : '#0A1433', border:'1px solid #ddd', borderRadius:'10px', padding:'8px', cursor:'pointer' }}>
-                <div style={{ fontWeight:'800', fontSize:'13px' }}>${v}</div>
-                <div style={{ fontSize:'10px' }}>{curr.symbol} {toLocal(v)}</div>
+              <button key={v} onClick={()=>setAmount(String(v))} style={{ background: amount==v ? '#0F1E8A' : '#fff', color: amount==v ? '#FDE68A' : '#000', border:'1px solid #000', borderRadius:'10px', padding:'8px', cursor:'pointer' }}>
+                <div style={{ fontWeight:'900', fontSize:'13px', color: amount==v ? '#FDE68A' : '#000' }}>${v}</div>
+                <div style={{ fontSize:'10px', color: amount==v ? '#FDE68A' : '#000', fontWeight:'700' }}>{curr.symbol} {toLocal(v)}</div>
               </button>
             ))}
           </div>
         </div>
 
-        <div style={{ marginTop:'16px', background:'#2E4BE0', borderRadius:'12px', padding:'14px' }}>
+        <div style={{ marginTop:'16px', background:'#fff', borderRadius:'12px', padding:'14px', border:'2px solid #000' }}>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'10px' }}>
-            <span style={{ color:'#000', fontWeight:'600', fontSize:'13px' }}>Withdrawal fees (10%)</span>
+            <span style={{ color:'#000', fontWeight:'900', fontSize:'13px' }}>Withdrawal fees (10%)</span>
             <div style={{ textAlign:'right' }}>
-              <div style={{ color:'#000', fontWeight:'600', fontSize:'13px' }}>{fee.toFixed(2)} USDT</div>
-              <div style={{ color:'#000', fontWeight:'500', fontSize:'11px' }}>{curr.symbol} {toLocal(fee)} {curr.code}</div>
+              <div style={{ color:'#000', fontWeight:'900', fontSize:'13px' }}>{fee.toFixed(2)} USDT</div>
+              <div style={{ color:'#000', fontWeight:'700', fontSize:'11px' }}>{curr.symbol} {toLocal(fee)} {curr.code}</div>
             </div>
           </div>
           <div style={{ display:'flex', justifyContent:'space-between' }}>
-            <span style={{ color:'#000', fontWeight:'600', fontSize:'13px' }}>Estimated amount received</span>
+            <span style={{ color:'#000', fontWeight:'900', fontSize:'13px' }}>Estimated amount received</span>
             <div style={{ textAlign:'right' }}>
-              <div style={{ color:'#000', fontWeight:'600', fontSize:'13px' }}>{estimated.toFixed(2)} USDT</div>
-              <div style={{ color:'#000', fontWeight:'500', fontSize:'11px' }}>{curr.symbol} {toLocal(estimated)} {curr.code}</div>
+              <div style={{ color:'#000', fontWeight:'900', fontSize:'13px' }}>{estimated.toFixed(2)} USDT</div>
+              <div style={{ color:'#000', fontWeight:'700', fontSize:'11px' }}>{curr.symbol} {toLocal(estimated)} {curr.code}</div>
             </div>
           </div>
         </div>
 
         <div style={{ marginTop:'16px' }}>
-          <div style={{ fontSize:'12px', color:'#666', marginBottom:'6px' }}>Fund Password</div>
-          <div style={{ background:'#fff', borderRadius:'12px', padding:'12px', border:'1px solid #ddd' }}>
-            <input type="password" value={fundPass} onChange={e=>setFundPass(e.target.value)} placeholder="Please enter fund password" style={{ width:'100%', border:'none', outline:'none' }} />
+          <div style={{ fontSize:'13px', color:'#000', marginBottom:'6px', fontWeight:'900' }}>Fund Password</div>
+          <div style={{ background:'#fff', borderRadius:'12px', padding:'12px', border:'1px solid #000' }}>
+            <input type="password" value={fundPass} onChange={e=>setFundPass(e.target.value)} placeholder="Please enter fund password" style={{ width:'100%', border:'none', outline:'none', color:'#000', fontWeight:'700' }} />
           </div>
         </div>
 
@@ -386,32 +382,32 @@ export default function WithdrawPage() {
           Withdrawal {numericAmount ? `$${numericAmount} / ${curr.symbol} ${toLocal(numericAmount)} ${curr.code}` : 'Now'}
         </button>
 
-        <div style={{ marginTop:'20px', background:'#fff', borderRadius:'16px', padding:'16px', border:'1px solid #eee' }}>
+        <div style={{ marginTop:'20px', background:'#fff', borderRadius:'16px', padding:'16px', border:'1px solid #000' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'14px' }}>
-            <div style={{ width:'32px', height:'32px', background:'#FFE3E8', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center' }}>ℹ️</div>
-            <div><div style={{ fontWeight:'800', fontSize:'14px' }}>Withdrawal rules</div><div style={{ fontSize:'11px', color:'#E91E63', fontWeight:'700' }}>MainStreetMovies</div></div>
+            <div style={{ width:'32px', height:'32px', background:'#FFE3E8', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#000', fontWeight:'900' }}>ℹ️</div>
+            <div><div style={{ fontWeight:'900', fontSize:'14px', color:'#000' }}>Withdrawal rules</div><div style={{ fontSize:'11px', color:'#000', fontWeight:'900' }}>MainStreetMovies</div></div>
           </div>
           <div style={{ display:'flex', gap:'12px', marginBottom:'14px' }}>
-            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'700', color:'#E91E63' }}>01</div>
-            <div><div style={{ fontWeight:'700', fontSize:'13px' }}>Withdrawal rules</div><div style={{ fontSize:'12px', color:'#666', marginTop:'2px' }}>MainStreetMovies supports withdrawals to TRC20-USDT, BEP20-USDT and MOBILE MONEY WALLET like AIRTEL and MTN networks only. Before withdrawing, link your withdrawal address.</div></div>
+            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'900', color:'#000', border:'1px solid #000' }}>01</div>
+            <div><div style={{ fontWeight:'900', fontSize:'13px', color:'#000' }}>Withdrawal rules</div><div style={{ fontSize:'12px', color:'#000', marginTop:'2px', fontWeight:'600' }}>MainStreetMovies supports withdrawals to TRC20-USDT, BEP20-USDT and MOBILE MONEY WALLET like AIRTEL and MTN networks only. Before withdrawing, link your withdrawal address.</div></div>
           </div>
           <div style={{ display:'flex', gap:'12px', marginBottom:'14px' }}>
-            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'700', color:'#E91E63' }}>02</div>
-            <div><div style={{ fontWeight:'700', fontSize:'13px' }}>Withdrawal fees</div><div style={{ fontSize:'12px', color:'#666' }}>10% fee</div></div>
+            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'900', color:'#000', border:'1px solid #000' }}>02</div>
+            <div><div style={{ fontWeight:'900', fontSize:'13px', color:'#000' }}>Withdrawal fees</div><div style={{ fontSize:'12px', color:'#000', fontWeight:'600' }}>10% fee</div></div>
           </div>
           <div style={{ display:'flex', gap:'12px', marginBottom:'14px' }}>
-            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'700', color:'#E91E63' }}>03</div>
-            <div><div style={{ fontWeight:'700', fontSize:'13px' }}>Withdrawal amount</div><div style={{ fontSize:'12px', color:'#666' }}>$5 - $1200 USDT</div></div>
+            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'900', color:'#000', border:'1px solid #000' }}>03</div>
+            <div><div style={{ fontWeight:'900', fontSize:'13px', color:'#000' }}>Withdrawal amount</div><div style={{ fontSize:'12px', color:'#000', fontWeight:'600' }}>$5 - $1200 USDT</div></div>
           </div>
           <div style={{ display:'flex', gap:'12px', marginBottom:'14px' }}>
-            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'700', color:'#E91E63' }}>04</div>
-            <div><div style={{ fontWeight:'700', fontSize:'13px' }}>Withdrawal days</div><div style={{ fontSize:'12px', color:'#666' }}>Monday to Friday</div></div>
+            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'900', color:'#000', border:'1px solid #000' }}>04</div>
+            <div><div style={{ fontWeight:'900', fontSize:'13px', color:'#000' }}>Withdrawal days</div><div style={{ fontSize:'12px', color:'#000', fontWeight:'600' }}>Monday to Friday</div></div>
           </div>
           <div style={{ display:'flex', gap:'12px', marginBottom:'16px' }}>
-            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'700', color:'#E91E63' }}>05</div>
-            <div><div style={{ fontWeight:'700', fontSize:'13px' }}>Withdrawal time</div><div style={{ fontSize:'12px', color:'#666' }}>9:00 - 7:00 PM UK time.</div></div>
+            <div style={{ minWidth:'28px', height:'28px', background:'#FFF0F3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:'900', color:'#000', border:'1px solid #000' }}>05</div>
+            <div><div style={{ fontWeight:'900', fontSize:'13px', color:'#000' }}>Withdrawal time</div><div style={{ fontSize:'12px', color:'#000', fontWeight:'600' }}>9:00 - 7:00 PM UK time.</div></div>
           </div>
-          <div style={{ borderTop:'1px solid #eee', paddingTop:'12px', textAlign:'center', fontSize:'11px', color:'#999', fontWeight:'600' }}>Copyright 2026 MainStreetMovies</div>
+          <div style={{ borderTop:'1px solid #000', paddingTop:'12px', textAlign:'center', fontSize:'11px', color:'#000', fontWeight:'900' }}>Copyright 2026 MainStreetMovies</div>
         </div>
       </div>
     </div>
