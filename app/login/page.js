@@ -251,16 +251,16 @@ export default function Login() {
     if (res.ok) {
       // --- ENSURE MY PAGE DATA EXISTS ---
       const apiUser = data.user || {}
-      const raw = (apiUser.rawPhone || apiUser.phone || fullPhone || '').replace(/\D/g, '')
-      const displayPhone = apiUser.displayPhone || (raw ? raw.slice(-9) : '')
-      const invitecode = apiUser.invitecode || apiUser.myInvitecode || (raw ? raw.slice(-6) + 'MS' : '')
+      const raw = String(apiUser.rawPhone || apiUser.phone || fullPhone || '').replace(/\D/g, '')
+      const displayPhone = String(apiUser.displayPhone || (raw ? raw.slice(-9) : ''))
+      const invitecode = String(apiUser.invitecode || apiUser.myInvitecode || (raw ? raw.slice(-6) + 'MS' : ''))
 
       const userToSave = {
         ...apiUser,
         rawPhone: raw,
         displayPhone,
         invitecode,
-        phone: apiUser.phone || fullPhone || apiUser.rawPhone
+        phone: String(apiUser.phone || fullPhone || apiUser.rawPhone || '')
       }
 
       localStorage.setItem('user', JSON.stringify(userToSave))
