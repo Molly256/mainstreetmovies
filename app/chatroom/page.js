@@ -5,6 +5,8 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [preview, setPreview] = useState(null)
+  const [selectedMsg, setSelectedMsg] = useState(null)
+  const [currentUserId, setCurrentUserId] = useState(null)
   const fileInputRef = useRef(null)
   const bottomRef = useRef(null)
 
@@ -19,6 +21,10 @@ export default function ChatRoom() {
   }
 
   useEffect(() => {
+    // Get current user id
+    const u = JSON.parse(localStorage.getItem('user') || '{}')
+    setCurrentUserId(u.id || u.phone || u._id || localStorage.getItem('myDisplayPhone') || 'me')
+    
     loadMessages()
     const interval = setInterval(loadMessages, 2000)
     return () => clearInterval(interval)
@@ -48,13 +54,31 @@ export default function ChatRoom() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         text: input.trim(),
-        imageUrl: preview
+        imageUrl: preview,
+        senderId: currentUserId // IMPORTANT: save who sent it
       })
     })
 
     setInput('')
     setPreview(null)
     loadMessages()
+  }
+
+  const handleDelete = async () => {
+    if(!selectedMsg) return
+    
+    // Instant delete from UI
+    setMessages(prev => prev.filter(m => m.id !== selectedMsg.id && m._id !== selectedMsg._id && m._id !== selectedMsg.id))
+    
+    // Delete from backend - so it deletes for EVERYONE
+    try{
+      await fetch(`/api/chatroom?id=${selectedMsg.id || selectedMsg._id}`, {
+        method: 'DELETE'
+      })
+    }catch(e){
+      console.log(e)
+    }
+    setSelectedMsg(null)
   }
 
   return (
@@ -73,17 +97,27 @@ export default function ChatRoom() {
           </div>
         )}
 
-        {messages.map((m) => (
-          <div key={m.id} className="max-w-[80%] self-start">
-            <div className="bg-[#f8fafc] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100">
-              {m.image && (
-                <img src={m.image} className="w-full max-w-[240px] rounded-xl mb-2" alt="shared" />
-              )}
-              {m.text && <p className="text-[14px] text-slate-800 leading-snug">{m.text}</p>}
-              <p className="text-[10px] text-slate-400 mt-1 text-right">{m.time}</p>
+        {messages.map((m) => {
+          const isMine = (m.senderId && m.senderId === currentUserId) || m.isMine
+          return (
+            <div 
+              key={m.id || m._id} 
+              onClick={()=>{ if(isMine) setSelectedMsg(m) }}
+              className={`max-w-[80%] ${isMine ? 'self-end' : 'self-start'} ${isMine ? 'cursor-pointer active:scale-[0.98] transition' : ''}`}
+            >
+              <div className={`rounded-2xl px-4 py-3 shadow-sm border ${isMine ? 'bg-[#4169E1] border-[#CFA85B]/40 rounded-br-md' : 'bg-[#f8fafc] rounded-bl-md border-slate-100'}`}>
+                {m.image && (
+                  <img src={m.image} className="w-full max-w-[240px] rounded-xl mb-2" alt="shared" />
+                )}
+                {m.imageUrl && (
+                  <img src={m.imageUrl} className="w-full max-w-[240px] rounded-xl mb-2" alt="shared" />
+                )}
+                {m.text && <p className={`text-[14px] leading-snug ${isMine ? 'text-white' : 'text-slate-800'}`}>{m.text}</p>}
+                <p className={`text-[10px] mt-1 text-right ${isMine ? 'text-[#FDE68A]/70' : 'text-slate-400'}`}>{m.time || new Date(m.createdAt || Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
 
         {preview && (
           <div className="self-end relative bg-slate-100 p-1.5 rounded-xl">
@@ -94,6 +128,20 @@ export default function ChatRoom() {
 
         <div ref={bottomRef} />
       </div>
+
+      {/* DELETE POPUP */}
+      {selectedMsg && (
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-6">
+          <div className="bg-white w-full max-w-[300px] rounded-[20px] p-6 shadow-2xl">
+            <h3 className="font-black text-[16px] text-center text-black">Delete message?</h3>
+            <p className="text-[12px] text-gray-500 text-center mt-2">This message will be deleted for everyone</p>
+            <div className="flex gap-3 mt-6">
+              <button onClick={()=>setSelectedMsg(null)} className="flex-1 py-3 rounded-full font-bold text-[14px] border bg-white text-[#4169E1] border-[#4169E1]">Cancel</button>
+              <button onClick={handleDelete} className="flex-1 py-3 rounded-full font-bold text-[14px] bg-[#FF3B30] text-white">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="fixed bottom-[80px] left-0 right-0 bg-white border-t border-slate-200 px-3 py-3 flex items-center gap-2 z-30">
         <button

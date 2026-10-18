@@ -107,7 +107,7 @@ export default function MyPage() {
     { label: 'Change password', href: '/change-password', emoji: '🔓', bg: '#ffe2f0' },
     { label: 'Change fund password', href: '/change-fund-password', emoji: '🔒', bg: '#fff0e0' },
     { label: 'APP Download', href: '/app-download', emoji: '⬇️', bg: '#e6f0ff' },
-    { label: 'Switch language', href: '/language', emoji: '⚙️', bg: '#f2f2f2' },
+    { label: 'Switch language', href: '/switch-language', emoji: '⚙️', bg: '#f2f2f2' },
   ]
 
   return (
